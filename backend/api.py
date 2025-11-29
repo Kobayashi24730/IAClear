@@ -13,6 +13,19 @@ from reportlab.pdfgen import canvas
 import tempfile
 import logging
 
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.info("Backend inicializando...")
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+logger.info(f"OPENAI_API_KEY carregada? {'Sim' if OPENAI_API_KEY else 'Não'}")
+
 # ---------------------------
 # Configuração de logging
 # ---------------------------
