@@ -1,0 +1,72 @@
+import { useState } from 'react';
+import CardFlutuante from './CardFlutuante.jsx';
+
+export default function Navbar(){
+    const [openCard, SetOpenCard] = useState(false);
+    const [Hovered, SetHovered] = useState(null);
+    const item = [
+	"Visao geral",
+	"Material de Baixo custo",
+	"Montagem e Esquema",
+	"Passos do Experimento",
+	"Montagem do Relatorio"
+	"Modelos de Relatorio Proposto"
+    ];
+
+
+    return(
+        <nav style={style.nav}>
+            <ul style={style.ul}>
+               {item.map((txt,index)  => {
+			<li style={style.li} key={index} onClick={() => SetOpenCard(true)}></li>
+		}) }
+            </ul>
+            {openCard && <CardFlutuante fechar={() => SetOpenCard(false)} />}
+        </nav>
+    );
+}
+
+const style = {
+  nav: {
+    width: "100%",
+    padding: "12px 25px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backdropFilter: "blur(18px) saturate(180%)",
+    background: "rgba(255, 255, 255, 0.06)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    zIndex: 50,
+  },
+
+  ul: {
+    display: "flex",
+    listStyle: "none",
+    gap: "30px",
+    padding: 0,
+    margin: 0,
+  },
+
+  li: {
+    color: "#ffffff",
+    fontSize: "15px",
+    fontWeight: 500,
+    padding: "8px 14px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    transition: "0.25s",
+    background: "rgba(255, 255, 255, 0.04)",
+  },
+
+  liHover: {
+    background: "rgba(255, 255, 255, 0.12)",
+  },
+
+  liActive: {
+    background: "rgba(0, 122, 255, 0.35)",
+    color: "#e6f2ff",
+  },
+};
