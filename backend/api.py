@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+# backend/api.py
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -9,6 +11,13 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 import tempfile
+import logging
+
+# ---------------------------
+# Configuração de logging
+# ---------------------------
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ---------------------------
 # Carregar variáveis do .env
@@ -16,12 +25,16 @@ import tempfile
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+if not OPENAI_API_KEY:
+    logger.error("A variável de ambiente OPENAI_API_KEY não está definida.")
+    raise EnvironmentError("A variável de ambiente OPENAI_API_KEY não está definida.")
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ---------------------------
 # FastAPI
 # ---------------------------
-app = FastAPI()
+app = FastAPI(title="API de Projetos", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,7 +56,7 @@ class Pergunta(BaseModel):
 # ---------------------------
 async def gerar_resposta(prompt: str):
     try:
-        print("➡ Enviando prompt:", prompt[:200])
+        logger.info("➡ Enviando prompt: %s", prompt[:200])
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
@@ -51,10 +64,10 @@ async def gerar_resposta(prompt: str):
             timeout=12
         )
         resposta = completion.choices[0].message.content
-        print("⬅ Resposta obtida")
+        logger.info("⬅ Resposta obtida")
         return resposta
     except Exception as e:
-        print("❌ ERRO GPT:", e)
+        logger.error("❌ ERRO GPT: %s", e)
         return f"Erro ao gerar resposta: {e}"
 
 # ---------------------------
