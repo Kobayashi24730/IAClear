@@ -1,30 +1,23 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from api import buscar_contexto, client
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
+from api import app as api_app
+
+# Reutiliza seu app do api.py
 app = FastAPI()
 
-class Pergunta(BaseModel):
-    pergunta: str
+# Inclui todas as rotas do seu api.py
+app.mount("/api", api_app)
 
+# Caminho do dist
+DIST_PATH = os.path.join(os.path.dirname(__file__), "../frontend/dist")
 
-@app.post("/perguntar")
-def perguntar(req: Pergunta):
+# Servir arquivos estáticos
+app.mount("/static", StaticFiles(directory=DIST_PATH), name="static")
 
-    contexto = buscar_contexto(req.pergunta)
-
-    prompt = f"""
-    Use SOMENTE o texto abaixo para responder:
-
-    {contexto}
-
-    Pergunta: {req.pergunta}
-    """
-
-    resposta = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2
-    )
-
-    return {"resposta": resposta.choices[0].message["content"]}
+# Rota principal → entregar index.html
+@app.get("/")
+def serve_frontend():
+    return FileResponse(os.path.join(DIST_PATH, "index.html"))
