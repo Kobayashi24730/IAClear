@@ -1,13 +1,7 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 python-multipart
 reportlab
 openai
-fastapi
-uvicorn
-python-multipart
-reportlab
-openai
-pydantic
 python-dotenv
