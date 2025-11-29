@@ -4,4 +4,4 @@ pydantic
 python-multipart
 reportlab
 openai
-corsheaders
+starlette
