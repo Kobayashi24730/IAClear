@@ -35,7 +35,7 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
   }
 
   async function baixarPDF() {
-    const req = await fetch("http://localhost:8000/relatorio/pdf", {
+    const req = await fetch("http://localhost:8000/relatorio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -129,27 +129,23 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
         );
 
       case "/relatorio":
-        return (
-          <>
-            <h2>Gerar Relatório</h2>
-            <small>Baseado no histórico das pesquisas</small>
+  return (
+    <>
+      <h2>Gerar Relatório</h2>
+      <small>Gerar arquivo PDF automático</small>
 
-            <button style={style.btn} onClick={gerarRelatorio}>
-              Gerar Relatório Completo
-            </button>
+      <textarea
+        placeholder="Texto do relatório..."
+        value={pergunta}
+        onChange={e => setPergunta(e.target.value)}
+        style={style.textarea}
+      />
 
-            {resultado && (
-              <button style={style.btnSec} onClick={baixarPDF}>
-                Baixar PDF
-              </button>
-            )}
-          </>
-        );
-
-      default:
-        return <p>Rota inválida.</p>;
-    }
-  }
+      <button style={style.btn} onClick={gerarRelatorio}>
+        Baixar PDF
+      </button>
+    </>
+  );
 
   return (
     <div style={style.overlay}>
