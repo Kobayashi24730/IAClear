@@ -1,15 +1,29 @@
 import express from "express";
 import OpenAI from "openai";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+// ---------- OPENAI CLIENT ----------
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// ---------- PERMITIR SPA (FRONTEND DO VITE) ----------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// pasta do frontend após build
+const distPath = path.join(__dirname, "front-end", "dist");
+
+// serve os arquivos estáticos do Vite
+app.use(express.static(distPath));
+
+// ---------- SUA API ----------
 app.post("/perguntar", async (req, res) => {
   try {
     const pergunta = req.body.pergunta;
@@ -25,4 +39,11 @@ app.post("/perguntar", async (req, res) => {
   }
 });
 
-app.listen(8000, () => console.log("Servidor rodando na porta 8000"));
+// ---------- ROTA PARA SPA ----------
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
+// ---------- PORTA (Render usa variável PORT) ----------
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
