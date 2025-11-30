@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Servir arquivos estáticos do build
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("*", (req, res) => {
