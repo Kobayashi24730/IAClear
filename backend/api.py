@@ -75,39 +75,34 @@ def salvar_resposta(session_id: str, campo: str, valor: str):
 
 @app.post("/visao")
 async def visao(data: Pergunta):
-    prompt = f"Faça uma visão geral detalhada sobre o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
+    prompt = f"Faça uma visão geral detalhada sobre o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "visao", resposta)
     return {"resposta": resposta}
 
 @app.post("/materiais")
 async def materiais(data: Pergunta):
-    prompt = f"Liste materiais de baixo custo para o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
+    prompt = f"Liste materiais de baixo custo para o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "materiais", resposta)
     return {"resposta": resposta}
 
 @app.post("/montagem")
 async def montagem(data: Pergunta):
-    prompt = f"Explique montagem, esquema e diagrama do projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
+    prompt = f"Explique montagem, esquema e diagrama do projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "montagem", resposta)
     return {"resposta": resposta}
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
-    prompt = f"Descreva o procedimento passo a passo para o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
+    prompt = f"Descreva o procedimento passo a passo para o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "procedimento", resposta)
     return {"resposta": resposta}
 
-# ---------------------------------------
-# Rota de PDF com TODAS as respostas
-# ---------------------------------------
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
-
-    # Buscar respostas da sessão
     session = respostas_sessao.get(data.session_id, {})
 
     visao_txt = session.get("visao", "Nenhuma resposta gerada.")
