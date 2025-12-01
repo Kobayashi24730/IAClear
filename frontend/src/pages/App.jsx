@@ -82,13 +82,11 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/como-usar" element={<ComoUsar />} />
-            
-            <Route path="/" element={<Home />} />
             <Route path="/visao" element={<AIPage />} />
             <Route path="/materiais" element={<AIPage />} />
             <Route path="/montagem" element={<AIPage />} />
             <Route path="/procedimento" element={<AIPage />} />
-            <Route path="/relatorio" element={AIPage />} />
+            <Route path="/relatorio" element={<AIPage />} />
           </Routes>
         </main>
       </div>
