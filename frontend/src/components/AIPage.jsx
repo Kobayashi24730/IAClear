@@ -30,7 +30,7 @@ export default function AIPage() {
         localStorage.getItem("session_id") || crypto.randomUUID();
       localStorage.setItem("session_id", session_id);
 
-      const resposta = await perguntarIA(rota, "", projeto, session_id);
+      const resposta = await perguntarIA(rota, projeto, session_id);
 
       if (resposta?.resposta) {
         setResultado(resposta.resposta);
