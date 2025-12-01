@@ -1,237 +1,128 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { perguntarIA } from "../assets/api.js";
 
-export default function CardFlutuante({ rota, projeto, fechar, historico, adicionarPesquisa }) {
+export default function AIPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const rota = location.pathname;     // ex: /visao
+  const projeto = location.state?.projeto || "";
+  
   const [pergunta, setPergunta] = useState("");
   const [resultado, setResultado] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  if (!projeto) {
+    return (
+      <div style={styles.page}>
+        <h2>Projeto não definido</h2>
+        <button onClick={() => navigate("/")}>Voltar</button>
+      </div>
+    );
+  }
 
   async function enviarPergunta() {
     if (!pergunta.trim()) return;
 
     setCarregando(true);
-    const resposta = await perguntarIA(rota, pergunta, projeto);
+    const session_id =
+      localStorage.getItem("session_id") || crypto.randomUUID();
+
+    localStorage.setItem("session_id", session_id);
+
+    const resposta = await perguntarIA(rota, pergunta, projeto, session_id);
+
     if (resposta?.resposta) {
       setResultado(resposta.resposta);
-      adicionarPesquisa(pergunta);
     }
+
     setCarregando(false);
   }
 
   async function baixarPDF() {
-  if (!pergunta.trim()) return;
+    const session_id = localStorage.getItem("session_id");
 
-  setCarregando(true);
-  try {
     const req = await fetch("https://iaclear-1-backend.onrender.com/relatorio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pergunta, projeto })
+      body: JSON.stringify({ projeto, session_id })
     });
-
-    if (!req.ok) throw new Error("Erro ao gerar PDF");
 
     const blob = await req.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "relatorio.pdf";
-    document.body.appendChild(a);
     a.click();
-    a.remove();
-
-  } catch (err) {
-    console.error(err);
-    setResultado("Erro ao gerar PDF");
-  } finally {
-    setCarregando(false);
-  }
-  }
-
-  function renderConteudo() {
-    switch (rota) {
-      case "/visao":
-        return (
-          <>
-            <h2>Visão Geral</h2>
-            <small>Projeto: {projeto}</small>
-            <textarea
-              placeholder="Pergunte algo sobre seu projeto..."
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-              style={style.textarea}
-            />
-            <button style={style.btn} onClick={enviarPergunta}>Perguntar</button>
-          </>
-        );
-
-      case "/materiais":
-        return (
-          <>
-            <h2>Materiais de Baixo Custo</h2>
-            <textarea
-              placeholder="Pergunte sobre materiais..."
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-              style={style.textarea}
-            />
-            <button style={style.btn} onClick={enviarPergunta}>Buscar</button>
-          </>
-        );
-
-      case "/montagem":
-        return (
-          <>
-            <h2>Montagem e Esquema</h2>
-            <textarea
-              placeholder="Pergunte sobre a montagem..."
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-              style={style.textarea}
-            />
-            <button style={style.btn} onClick={enviarPergunta}>Gerar</button>
-          </>
-        );
-
-      case "/procedimento":
-        return (
-          <>
-            <h2>Procedimento</h2>
-            <textarea
-              placeholder="Pergunte sobre o procedimento..."
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-              style={style.textarea}
-            />
-            <button style={style.btn} onClick={enviarPergunta}>Gerar</button>
-          </>
-        );
-
-      case "/relatorio":
-        return (
-          <>
-            <h2>Gerar Relatório</h2>
-            <small>Gerar arquivo PDF automático</small>
-            <textarea
-              placeholder="Texto do relatório..."
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-              style={style.textarea}
-            />
-            <button style={style.btn} onClick={baixarPDF}>Baixar PDF</button>
-          </>
-        );
-
-      default:
-        return null;
-    }
   }
 
   return (
-    <div style={style.overlay}>
-      <div style={style.card}>
-        <button style={style.btnClose} onClick={fechar}>✕</button>
+    <div style={styles.page}>
+      <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
 
-        {renderConteudo()}
+      <h1>{rota.replace("/", "").toUpperCase()}</h1>
+      <h3>Projeto: {projeto}</h3>
 
-        {carregando && <p>Carregando...</p>}
+      <textarea
+        placeholder="Digite sua pergunta..."
+        value={pergunta}
+        onChange={e => setPergunta(e.target.value)}
+        style={styles.textarea}
+      />
 
-        {resultado && (
-          <div style={style.resultado}>
-            <pre>{resultado}</pre>
-          </div>
-        )}
-      </div>
+      <button style={styles.btn} onClick={rota === "/relatorio" ? baixarPDF : enviarPergunta}>
+        {rota === "/relatorio" ? "Gerar PDF" : "Enviar Pergunta"}
+      </button>
+
+      {carregando && <p>Carregando...</p>}
+
+      {resultado && (
+        <div style={styles.resultado}>
+          <pre>{resultado}</pre>
+        </div>
+      )}
     </div>
   );
 }
 
-const style = {
-  overlay: {
-    position: "fixed",
-    top: 0, left: 0,
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0,0,0,0.35)",
-    backdropFilter: "blur(6px)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "10px",       // evita o card colar nas bordas no celular
-    zIndex: 9999
+const styles = {
+  page: {
+    padding: "20px",
+    maxWidth: "800px",
+    margin: "0 auto",
   },
-
-  card: {
-    width: "100%",
-    maxWidth: "650px",
-    background: "rgba(250,250,250,0.88)",
-    backdropFilter: "blur(14px)",
-    borderRadius: "18px",
-    padding: "22px",
-    boxSizing: "border-box",   // evita estourar tela
-    color: "#000",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
-    position: "relative",
-
-    maxHeight: "85vh",     // garante que NUNCA sai da tela
-    overflowY: "auto"      // scroll interno quando passar do limite
-  },
-
-  btnClose: {
-    position: "absolute",
-    top: "12px",
-    right: "12px",
+  home: {
+    marginBottom: "20px",
+    padding: "10px 15px",
+    borderRadius: "10px",
     border: "none",
-    background: "transparent",
-    fontSize: "22px",
-    cursor: "pointer",
-    color: "#000"
+    background: "#222",
+    color: "#fff",
+    cursor: "pointer"
   },
-
   textarea: {
     width: "100%",
-    minHeight: "100px",
-    padding: "12px",
-    marginTop: "12px",
+    minHeight: "120px",
+    padding: "10px",
     borderRadius: "10px",
     border: "1px solid #ccc",
-    resize: "vertical",
-    background: "rgba(255,255,255,0.95)",
-    boxSizing: "border-box"
+    marginTop: "10px"
   },
-
   btn: {
-    marginTop: "12px",
-    padding: "12px 18px",
+    width: "100%",
+    padding: "12px",
     background: "#0078d4",
     color: "#fff",
     border: "none",
     borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    width: "100%"
-  },
-
-  btnSec: {
     marginTop: "12px",
-    padding: "12px",
-    width: "100%",
-    background: "#444",
-    color: "#fff",
-    border: "none",
-    borderRadius: "10px",
     cursor: "pointer"
   },
-
   resultado: {
-    background: "#fff",
+    marginTop: "20px",
     padding: "15px",
-    marginTop: "18px",
-    borderRadius: "12px",
-    color: "#333",
-    maxHeight: "300px",
-    overflowY: "auto",
-    whiteSpace: "pre-wrap",
-    boxSizing: "border-box"
+    borderRadius: "10px",
+    background: "#f0f0f0",
+    whiteSpace: "pre-wrap"
   }
 };
