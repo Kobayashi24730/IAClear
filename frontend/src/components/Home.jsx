@@ -56,6 +56,7 @@ export default function Home() {
   useEffect(() => {
     document.body.style.margin = "0";
     document.body.style.padding = "0";
+    document.body.style.overflowX = "hidden"; 
     setTimeout(() => setAnimate(true), 100);
   }, []);
 
@@ -70,16 +71,15 @@ export default function Home() {
 
   const styles = {
     page: {
-      width: "100vw",
+      width: "100%",            
       minHeight: "100vh",
       background: theme.bg,
       fontFamily: "Segoe UI, Arial, sans-serif",
-      overflowX: "hidden",
+      overflowX: "hidden",       
     },
 
-    /* HERO */
     hero: {
-      width: "100vw",
+      width: "100%",            
       minHeight: "95vh",
       backgroundImage: `
         linear-gradient(
@@ -100,6 +100,7 @@ export default function Home() {
       opacity: animate ? 1 : 0,
       transform: animate ? "translateY(0)" : "translateY(40px)",
       transition: "all 0.8s ease",
+      boxSizing: "border-box"
     },
 
     heroTitle: {
@@ -137,11 +138,11 @@ export default function Home() {
       transition: "0.2s",
     },
 
-    /* CARDS */
     section: {
       padding: "60px 20px",
       textAlign: "center",
       width: "100%",
+      boxSizing: "border-box",
     },
 
     sectionTitle: {
@@ -159,6 +160,7 @@ export default function Home() {
       maxWidth: "1200px",
       marginLeft: "auto",
       marginRight: "auto",
+      boxSizing: "border-box",
     },
 
     ensinoCard: {
@@ -176,7 +178,6 @@ export default function Home() {
       boxShadow: "0 3px 14px rgba(0,0,0,0.15)",
     },
 
-    /* POR QUE USAR */
     porqueGrid: {
       marginTop: 40,
       display: "grid",
@@ -186,6 +187,7 @@ export default function Home() {
       maxWidth: "1200px",
       marginLeft: "auto",
       marginRight: "auto",
+      boxSizing: "border-box",
     },
 
     porqueCard: {
@@ -196,7 +198,6 @@ export default function Home() {
       textAlign: "center",
     },
 
-    /* FOOTER */
     footer: {
       marginTop: 60,
       padding: "50px 25px",
@@ -205,6 +206,7 @@ export default function Home() {
       gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
       gap: "35px",
       width: "100%",
+      boxSizing: "border-box",
     },
 
     footerLogoBox: {
@@ -226,7 +228,7 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      
+
       {/* HERO */}
       <section style={styles.hero}>
         <h1 style={styles.heroTitle}>Domine a Física com a HogIA</h1>
