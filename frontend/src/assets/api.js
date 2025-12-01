@@ -1,13 +1,10 @@
-// src/assets/api.js
-
-const BASE_URL = "https://iaclear-1-backend.onrender.com";
-
-export async function perguntarIA(rota, pergunta, projeto) {
-  const req = await fetch(`${BASE_URL}${rota}`, {
+export async function perguntarIA(rota, projeto, session_id) {
+  const req = await fetch("https://iaclear-1-backend.onrender.com" + rota, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pergunta, projeto })
+    body: JSON.stringify({ projeto, session_id })
   });
 
-  return await req.json();
+  if (!req.ok) return null;
+  return req.json();
 }
