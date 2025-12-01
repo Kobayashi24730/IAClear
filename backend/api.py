@@ -1,7 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from ffrom fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai import OpenAI
@@ -13,7 +11,7 @@ from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 
 # ---------------------------------------
-# Carregar .env
+# Load .env
 # ---------------------------------------
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -21,7 +19,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ---------------------------------------
-# FastAPI Config
+# FastAPI Setup
 # ---------------------------------------
 app = FastAPI()
 
@@ -30,24 +28,23 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
 )
 
 # ---------------------------------------
-# Armazenamento temporário das respostas
+# Temporary Memory
 # ---------------------------------------
 respostas_sessao = {}
 
 # ---------------------------------------
-# Modelo da requisição
-# (AGORA SEM PERGUNTA)
+# Model (no pergunta text)
 # ---------------------------------------
 class Pergunta(BaseModel):
     projeto: str
     session_id: str
 
+
 # ---------------------------------------
-# GPT
+# GPT function
 # ---------------------------------------
 async def gerar_resposta(prompt: str):
     try:
@@ -62,9 +59,7 @@ async def gerar_resposta(prompt: str):
         print("❌ ERRO GPT:", e)
         return f"Erro ao gerar resposta: {e}"
 
-# ---------------------------------------
-# Função para salvar respostas
-# ---------------------------------------
+
 def salvar_resposta(session_id: str, campo: str, valor: str):
     if session_id not in respostas_sessao:
         respostas_sessao[session_id] = {}
@@ -72,12 +67,12 @@ def salvar_resposta(session_id: str, campo: str, valor: str):
 
 
 # ---------------------------------------
-# ROTAS GPT (GERAÇÃO AUTOMÁTICA)
+# ROUTES (Autogeradas)
 # ---------------------------------------
 
 @app.post("/visao")
 async def visao(data: Pergunta):
-    prompt = f"Crie uma visão geral detalhada, clara e explicativa sobre o projeto: {data.projeto}."
+    prompt = f"Crie uma visão geral objetiva, clara e detalhada sobre o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "visao", resposta)
     return {"resposta": resposta}
@@ -85,7 +80,7 @@ async def visao(data: Pergunta):
 
 @app.post("/materiais")
 async def materiais(data: Pergunta):
-    prompt = f"Liste os materiais necessários, preferindo versões de baixo custo, para o projeto: {data.projeto}."
+    prompt = f"Liste todos os materiais necessários para o projeto '{data.projeto}', priorizando itens baratos."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "materiais", resposta)
     return {"resposta": resposta}
@@ -93,7 +88,7 @@ async def materiais(data: Pergunta):
 
 @app.post("/montagem")
 async def montagem(data: Pergunta):
-    prompt = f"Explique a montagem, incluindo diagramas e esquemas explicados em texto, do projeto: {data.projeto}."
+    prompt = f"Explique de forma clara a montagem completa do projeto '{data.projeto}', incluindo descrição de diagramas."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "montagem", resposta)
     return {"resposta": resposta}
@@ -101,18 +96,18 @@ async def montagem(data: Pergunta):
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
-    prompt = f"Descreva o procedimento passo a passo mais claro possível para executar o projeto: {data.projeto}."
+    prompt = f"Explique o procedimento passo a passo do projeto '{data.projeto}' de forma didática e organizada."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "procedimento", resposta)
     return {"resposta": resposta}
 
 
 # ---------------------------------------
-# GERAR PDF
+# PDF
 # ---------------------------------------
-
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
+
     session = respostas_sessao.get(data.session_id, {})
 
     visao_txt = session.get("visao", "Nenhuma resposta gerada.")
@@ -120,7 +115,6 @@ async def gerar_pdf(data: Pergunta):
     montagem_txt = session.get("montagem", "Nenhuma resposta gerada.")
     procedimento_txt = session.get("procedimento", "Nenhuma resposta gerada.")
 
-    # Criar PDF temporário
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf_path = tmp.name
     tmp.close()
@@ -128,31 +122,30 @@ async def gerar_pdf(data: Pergunta):
     c = canvas.Canvas(pdf_path, pagesize=A4)
     width, height = A4
 
-    # Cabeçalho
+    # Header
     c.setFillColor(colors.red)
     c.rect(0, 0, 25, height, fill=True)
+
     c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 22)
-    c.drawString(40, height - 50, "Relatório Técnico - Projeto Escolar")
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(40, height - 50, f"Relatório Técnico - {data.projeto}")
+
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(width - 40, height - 40, "Gerado pelo Sistema IA Clear")
+    c.drawRightString(width - 40, height - 40, "Gerado pelo IA Clear")
 
-    # Conteúdo
-    texto_completo = f"""
-PROJETO: {data.projeto}
-
+    texto = f"""
 ============================
 VISÃO GERAL
 ============================
 {visao_txt}
 
 ============================
-MATERIAIS UTILIZADOS
+MATERIAIS
 ============================
 {materiais_txt}
 
 ============================
-MONTAGEM / DIAGRAMA
+MONTAGEM
 ============================
 {montagem_txt}
 
@@ -163,20 +156,17 @@ PROCEDIMENTO
 """
 
     c.setFont("Helvetica", 11)
-
     y = height - 120
-    for linha in texto_completo.split("\n"):
+
+    for linha in texto.split("\n"):
         if y < 40:
             c.showPage()
             c.setFont("Helvetica", 11)
             y = height - 40
+
         c.drawString(40, y, linha)
         y -= 14
 
     c.save()
 
-    return FileResponse(
-        pdf_path,
-        filename="relatorio_projeto.pdf",
-        media_type="application/pdf"
-    )
+    return FileResponse(pdf_path, filename="relatorio.pdf", media_type="application/pdf")
