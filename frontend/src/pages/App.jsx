@@ -16,16 +16,35 @@ export default function App() {
     return id;
   });
 
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setAnimate(true), 100);
+  }, []);
+
   function criarNovoProjeto() {
     const novo = crypto.randomUUID();
     localStorage.setItem("fisiqia_project", novo);
     setProjectId(novo);
   }
 
+  const theme = {
+    bg: "#121212",
+    mainBg: "#1e1e1e",
+    text: "#ffffff",
+  };
+
   return (
     <BrowserRouter>
-      <div style={{ fontFamily: "Inter, Arial, sans-serif" }}>
-        {}
+      <div
+        style={{
+          fontFamily: "Inter, Arial, sans-serif",
+          background: theme.bg,
+          color: theme.text,
+          minHeight: "100vh",
+        }}
+      >
+        {/* HEADER */}
         <header
           style={{
             width: "100%",
@@ -59,26 +78,37 @@ export default function App() {
                 border: "none",
                 borderRadius: 6,
                 cursor: "pointer",
+                transition: "0.3s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.2)")}
+              onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
             >
               Novo Projeto
             </button>
           </div>
         </header>
 
+        {/* MAIN */}
         <main
           style={{
-            paddingTop: "80px", 
+            paddingTop: "80px",
             paddingLeft: "20px",
             paddingRight: "20px",
             boxSizing: "border-box",
+            background: theme.mainBg,
+            minHeight: "100vh",
+            opacity: animate ? 1 : 0,
+            transform: animate ? "translateX(0)" : "translateX(-50px)",
+            transition: "all 0.8s ease",
+            borderRadius: "8px",
           }}
         >
-          
+          {/* NAVBAR */}
           <div style={{ marginBottom: "20px" }}>
             <Navbar projectId={projectId} />
           </div>
 
+          {/* ROTAS */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/como-usar" element={<ComoUsar />} />
@@ -92,4 +122,4 @@ export default function App() {
       </div>
     </BrowserRouter>
   );
-}
+            }
