@@ -5,7 +5,7 @@ import { perguntarIA } from "../assets/api.js";
 export default function AIPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const rota = location.pathname;     // ex: /visao
+  const rota = location.pathname;   
   const projeto = location.state?.projeto || "";
   
   const [pergunta, setPergunta] = useState("");
