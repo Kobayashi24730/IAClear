@@ -31,33 +31,35 @@ export default function Home() {
   };
 
   const styles = {
-    page: {
-      scrollBehavior: "smooth",
-      width: "100%",
-      minHeight: "100vh",
-      background: theme.bg,
-      color: theme.text,
-      fontFamily: "Segoe UI, Arial, sans-serif",
-      overflowX: "hidden",
-    },
+  page: {
+    scrollBehavior: "smooth",
+    width: "100%",
+    minHeight: "100vh",
+    background: theme.bg,
+    color: theme.text,
+    fontFamily: "Segoe UI, Arial, sans-serif",
+    overflowX: "hidden",
+    margin: 0,
+    padding: 0,
+  },
 
-    hero: {
-      width: "100%",
-      minHeight: "65vh",
-      backgroundImage: `linear-gradient(to bottom, rgba(244,244,244,0.9) 50%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      textAlign: "center",
-      padding: "15px",
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(-50px)",
-      transition: "all 0.8s ease",
-      color: theme.text,
-    },
+  hero: {
+    width: "100%",
+    minHeight: "100vh", // preenche toda a tela
+    backgroundImage: `linear-gradient(to bottom, rgba(244,244,244,0.85) 40%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    padding: "0 15px", // diminui o padding vertical
+    opacity: animate ? 1 : 0,
+    transform: animate ? "translateX(0)" : "translateX(-50px)",
+    transition: "all 0.8s ease",
+    color: theme.text,
+  },
 
     heroLogo: { width: 120, marginBottom: 10 },
 
