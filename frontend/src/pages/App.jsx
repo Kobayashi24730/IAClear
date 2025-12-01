@@ -10,7 +10,7 @@ export default function App() {
   const [projectId, setProjectId] = useState(() => {
     const saved = localStorage.getItem("fisiqia_project");
     if (saved) return saved;
-n
+
     const id = crypto.randomUUID();
     localStorage.setItem("fisiqia_project", id);
     return id;
@@ -45,23 +45,23 @@ n
           background: theme.bg,
           color: theme.text,
           minHeight: "100vh",
-          width: "100vw",
+          width: "100%",
           margin: 0,
           padding: 0,
           overflowX: "hidden",
         }}
       >
-        {/* HEADER */}
+        {/* HEADER FIXO */}
         <header
           style={{
-            width: "100vw",
+            width: "100%",
             height: "64px",
             background: theme.header,
             color: theme.text,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "0 14px", 
+            padding: "0 14px",
             boxSizing: "border-box",
             position: "fixed",
             top: 0,
@@ -104,43 +104,45 @@ n
         <main
           style={{
             paddingTop: "90px",
-            paddingLeft: "12px", 
-            paddingRight: "12px", 
-            boxSizing: "border-box",
+            paddingLeft: "0px",
+            paddingRight: "0px",
             background: theme.mainBg,
             minHeight: "100vh",
-            width: "100vw",
+            width: "100%",
             overflowX: "hidden",
             margin: 0,
+            boxSizing: "border-box",
             opacity: animate ? 1 : 0,
             transform: animate ? "translateX(0)" : "translateX(-50px)",
             transition: "all 0.6s ease",
           }}
         >
-          {/* NAVBAR — agora com scroll */}
+          {/* NAVBAR */}
           <div
             style={{
-              marginBottom: "20px",
+              width: "100%",
               overflowX: "auto",
-              whiteSpace: "nowrap",
-              paddingBottom: "6px",
+              padding: "0",
+              margin: 0,
             }}
           >
             <Navbar projectId={projectId} />
           </div>
 
-          {/* ROTAS */}
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/como-usar" element={<ComoUsar />} />
-            <Route path="/visao" element={<AIPage />} />
-            <Route path="/materiais" element={<AIPage />} />
-            <Route path="/montagem" element={<AIPage />} />
-            <Route path="/procedimento" element={<AIPage />} />
-            <Route path="/relatorio" element={<AIPage />} />
-          </Routes>
+          {/* CONTEÚDO DAS ROTAS */}
+          <div style={{ padding: "0 12px", boxSizing: "border-box" }}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/como-usar" element={<ComoUsar />} />
+              <Route path="/visao" element={<AIPage />} />
+              <Route path="/materiais" element={<AIPage />} />
+              <Route path="/montagem" element={<AIPage />} />
+              <Route path="/procedimento" element={<AIPage />} />
+              <Route path="/relatorio" element={<AIPage />} />
+            </Routes>
+          </div>
         </main>
       </div>
     </BrowserRouter>
   );
-      }
+              }
