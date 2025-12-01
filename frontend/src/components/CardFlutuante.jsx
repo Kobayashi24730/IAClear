@@ -23,7 +23,7 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
 
     setCarregando(true);
     try {
-      const req = await fetch("http://localhost:8000/relatorio", { // troque pela URL do Render se necessário
+      const req = await fetch("https://iaclear-1-backend.onrender.com"; /", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pergunta, projeto })
