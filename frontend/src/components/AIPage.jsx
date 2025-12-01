@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { perguntarIA } from "../assets/api.js";
 
 export default function AIPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const rota = location.pathname;   
+  const rota = location.pathname;
   const projeto = location.state?.projeto || "";
-  
-  const [pergunta, setPergunta] = useState("");
+
   const [resultado, setResultado] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -21,16 +20,20 @@ export default function AIPage() {
     );
   }
 
-  async function enviarPergunta() {
-    if (!pergunta.trim()) return;
+  useEffect(() => {
+    if (rota === "/relatorio") return;
 
+    gerarRespostaAutomatica();
+  }, [rota]);
+
+  async function gerarRespostaAutomatica() {
     setCarregando(true);
+
     const session_id =
       localStorage.getItem("session_id") || crypto.randomUUID();
-
     localStorage.setItem("session_id", session_id);
 
-    const resposta = await perguntarIA(rota, pergunta, projeto, session_id);
+    const resposta = await perguntarIA(rota, "", projeto, session_id);
 
     if (resposta?.resposta) {
       setResultado(resposta.resposta);
@@ -45,7 +48,7 @@ export default function AIPage() {
     const req = await fetch("https://iaclear-1-backend.onrender.com/relatorio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pergunta: "",projeto, session_id })
+      body: JSON.stringify({ projeto, session_id })
     });
 
     const blob = await req.blob();
@@ -63,28 +66,23 @@ export default function AIPage() {
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
       <h3>Projeto: {projeto}</h3>
 
-      <textarea
-        placeholder="Digite sua pergunta..."
-        value={pergunta}
-        onChange={e => setPergunta(e.target.value)}
-        style={styles.textarea}
-      />
-
-      <button style={styles.btn} onClick={rota === "/relatorio" ? baixarPDF : enviarPergunta}>
-        {rota === "/relatorio" ? "Gerar PDF" : "Enviar Pergunta"}
-      </button>
-
-      {carregando && <p>Carregando...</p>}
-
-      {resultado && (
-        <div style={styles.resultado}>
-          <pre>{resultado}</pre>
-        </div>
+      {rota !== "/relatorio" ? (
+        <>
+          {carregando && <p>Carregando...</p>}
+          {resultado && (
+            <div style={styles.resultado}>
+              <pre>{resultado}</pre>
+            </div>
+          )}
+        </>
+      ) : (
+        <button style={styles.btn} onClick={baixarPDF}>
+          Gerar PDF
+        </button>
       )}
     </div>
   );
-}
-
+      }
 const styles = {
   page: {
     padding: "20px",
