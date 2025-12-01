@@ -21,26 +21,26 @@ export default function AIPage() {
   }
 
   useEffect(() => {
-    if (rota === "/relatorio") return;
+    async function carregarResposta() {
+      if (rota === "/relatorio") return;
 
-    gerarRespostaAutomatica();
-  }, [rota]);
+      setCarregando(true);
 
-  async function gerarRespostaAutomatica() {
-    setCarregando(true);
+      const session_id =
+        localStorage.getItem("session_id") || crypto.randomUUID();
+      localStorage.setItem("session_id", session_id);
 
-    const session_id =
-      localStorage.getItem("session_id") || crypto.randomUUID();
-    localStorage.setItem("session_id", session_id);
+      const resposta = await perguntarIA(rota, "", projeto, session_id);
 
-    const resposta = await perguntarIA(rota, "", projeto, session_id);
+      if (resposta?.resposta) {
+        setResultado(resposta.resposta);
+      }
 
-    if (resposta?.resposta) {
-      setResultado(resposta.resposta);
+      setCarregando(false);
     }
 
-    setCarregando(false);
-  }
+    carregarResposta();
+  }, [rota, projeto]);
 
   async function baixarPDF() {
     const session_id = localStorage.getItem("session_id");
@@ -66,29 +66,21 @@ export default function AIPage() {
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
       <h3>Projeto: {projeto}</h3>
 
-      {rota !== "/relatorio" ? (
-        <>
-          {carregando && <p>Carregando...</p>}
-          {resultado && (
-            <div style={styles.resultado}>
-              <pre>{resultado}</pre>
-            </div>
-          )}
-        </>
+      {rota === "/relatorio" ? (
+        <button style={styles.btn} onClick={baixarPDF}>Gerar PDF</button>
+      ) : carregando ? (
+        <p>Carregando...</p>
       ) : (
-        <button style={styles.btn} onClick={baixarPDF}>
-          Gerar PDF
-        </button>
+        <div style={styles.resultado}>
+          <pre>{resultado}</pre>
+        </div>
       )}
     </div>
   );
-      }
+}
+
 const styles = {
-  page: {
-    padding: "20px",
-    maxWidth: "800px",
-    margin: "0 auto",
-  },
+  page: { padding: "20px", maxWidth: "800px", margin: "0 auto" },
   home: {
     marginBottom: "20px",
     padding: "10px 15px",
@@ -97,14 +89,6 @@ const styles = {
     background: "#222",
     color: "#fff",
     cursor: "pointer"
-  },
-  textarea: {
-    width: "100%",
-    minHeight: "120px",
-    padding: "10px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-    marginTop: "10px"
   },
   btn: {
     width: "100%",
