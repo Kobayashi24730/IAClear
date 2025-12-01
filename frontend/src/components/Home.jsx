@@ -20,13 +20,14 @@ export default function Home() {
     setTimeout(() => setAnimate(true), 100);
   }, []);
 
+  
   const theme = {
-    bg: "#f4f4f4",    
-    card: "#ffffff",    
-    text: "#111111",    
-    btn: "#e0e0e0",     
-    btnHover: "#d0d0d0",
-    header: "#ffffff",  
+    bg: "#f4f4f4",      // fundo geral
+    card: "#ffffff",     // cartões
+    text: "#111111",     // textos
+    btn: "#0078D4",      // botão azul Windows
+    btnHover: "#005A9E", // hover botão
+    header: "#ffffff",   // header/menu
   };
 
   const styles = {
@@ -43,7 +44,7 @@ export default function Home() {
     hero: {
       width: "100%",
       minHeight: "65vh",
-      backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0) 60%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=1600&q=80")`,
+      backgroundImage: `linear-gradient(to bottom, rgba(244,244,244,0.9) 50%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")`,
       backgroundSize: "cover",
       backgroundPosition: "center",
       display: "flex",
@@ -55,6 +56,7 @@ export default function Home() {
       opacity: animate ? 1 : 0,
       transform: animate ? "translateX(0)" : "translateX(-50px)",
       transition: "all 0.8s ease",
+      color: theme.text,
     },
 
     heroLogo: { width: 120, marginBottom: 10 },
@@ -88,14 +90,14 @@ export default function Home() {
       transition: "all 0.8s ease 0.6s",
     },
 
-    greenBtn: {
+    btn: {
       padding: "12px 25px",
       background: theme.btn,
-      border: "1px solid #aaa",
+      border: "none",
       borderRadius: "4px",
       fontSize: "16px",
       cursor: "pointer",
-      color: theme.text,
+      color: "#fff",
       transition: "0.2s",
     },
 
@@ -184,7 +186,7 @@ export default function Home() {
         </p>
         <div style={styles.buttonRow}>
           <button
-            style={styles.greenBtn}
+            style={styles.btn}
             onMouseEnter={(e) => (e.currentTarget.style.background = theme.btnHover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = theme.btn)}
             onClick={() => navigate("/Como-Usar")}
@@ -234,4 +236,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
+        }
