@@ -63,7 +63,16 @@ export default function AIPage() {
 
   return (
     <div style={styles.page}>
-      <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
+      <div>
+        <div>
+          <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
+          <button style={styles.home} onClick={() => navigate("/ComoUsar")}> Tirar duvidas</button>
+        </div>
+        <div>
+          <button style={style.gerar}> Pesquisar</button>
+        </div>
+      </div>
+      
 
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
       <h3>Projeto: {projeto}</h3>
