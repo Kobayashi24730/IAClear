@@ -10,50 +10,42 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
     if (!pergunta.trim()) return;
 
     setCarregando(true);
-
     const resposta = await perguntarIA(rota, pergunta, projeto);
-
     if (resposta?.resposta) {
       setResultado(resposta.resposta);
       adicionarPesquisa(pergunta);
     }
-
     setCarregando(false);
   }
 
   async function baixarPDF() {
-  if (!pergunta.trim()) return;
+    if (!pergunta.trim()) return;
 
-  setCarregando(true);
+    setCarregando(true);
+    try {
+      const req = await fetch("http://localhost:8000/relatorio", { // troque pela URL do Render se necessário
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pergunta, projeto })
+      });
 
-  try {
-    const req = await fetch("http://localhost:8000/relatorio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pergunta,
-        projeto
-      })
-    });
+      if (!req.ok) throw new Error("Erro ao gerar PDF");
 
-    if (!req.ok) throw new Error("Erro ao gerar PDF");
+      const blob = await req.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "relatorio.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
-    const blob = await req.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "relatorio.pdf";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-  } catch (err) {
-    console.error(err);
-    setResultado("Erro ao gerar PDF");
-  } finally {
-    setCarregando(false);
-  }
+    } catch (err) {
+      console.error(err);
+      setResultado("Erro ao gerar PDF");
+    } finally {
+      setCarregando(false);
+    }
   }
 
   function renderConteudo() {
@@ -63,17 +55,13 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
           <>
             <h2>Visão Geral</h2>
             <small>Projeto: {projeto}</small>
-
             <textarea
               placeholder="Pergunte algo sobre seu projeto..."
               value={pergunta}
               onChange={e => setPergunta(e.target.value)}
               style={style.textarea}
             />
-
-            <button style={style.btn} onClick={enviarPergunta}>
-              Perguntar
-            </button>
+            <button style={style.btn} onClick={enviarPergunta}>Perguntar</button>
           </>
         );
 
@@ -81,17 +69,13 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
         return (
           <>
             <h2>Materiais de Baixo Custo</h2>
-
             <textarea
               placeholder="Pergunte sobre materiais..."
               value={pergunta}
               onChange={e => setPergunta(e.target.value)}
               style={style.textarea}
             />
-
-            <button style={style.btn} onClick={enviarPergunta}>
-              Buscar
-            </button>
+            <button style={style.btn} onClick={enviarPergunta}>Buscar</button>
           </>
         );
 
@@ -99,17 +83,13 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
         return (
           <>
             <h2>Montagem e Esquema</h2>
-
             <textarea
               placeholder="Pergunte sobre a montagem..."
               value={pergunta}
               onChange={e => setPergunta(e.target.value)}
               style={style.textarea}
             />
-
-            <button style={style.btn} onClick={enviarPergunta}>
-              Gerar
-            </button>
+            <button style={style.btn} onClick={enviarPergunta}>Gerar</button>
           </>
         );
 
@@ -117,43 +97,35 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
         return (
           <>
             <h2>Procedimento</h2>
-
             <textarea
               placeholder="Pergunte sobre o procedimento..."
               value={pergunta}
               onChange={e => setPergunta(e.target.value)}
               style={style.textarea}
             />
-
-            <button style={style.btn} onClick={enviarPergunta}>
-              Gerar
-            </button>
+            <button style={style.btn} onClick={enviarPergunta}>Gerar</button>
           </>
         );
-        
-  case "/relatorio":
-    return (
-      <>
-        <h2>Gerar Relatório</h2>
-        <small>Gerar arquivo PDF automático</small>
 
-        <textarea
-          placeholder="Texto do relatório..."
-          value={pergunta}
-          onChange={e => setPergunta(e.target.value)}
-          style={style.textarea}
-        />
+      case "/relatorio":
+        return (
+          <>
+            <h2>Gerar Relatório</h2>
+            <small>Gerar arquivo PDF automático</small>
+            <textarea
+              placeholder="Texto do relatório..."
+              value={pergunta}
+              onChange={e => setPergunta(e.target.value)}
+              style={style.textarea}
+            />
+            <button style={style.btn} onClick={baixarPDF}>Baixar PDF</button>
+          </>
+        );
 
-        <button style={style.btn} onClick={baixarPDF}>
-          Baixar PDF
-        </button>
-      </>
-    );
-
-  // outros cases...
-  default:
-    return null;
- }     
+      default:
+        return null;
+    }
+  }
 
   return (
     <div style={style.overlay}>
