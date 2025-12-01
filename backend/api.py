@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from ffrom fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai import OpenAI
@@ -33,15 +35,14 @@ app.add_middleware(
 
 # ---------------------------------------
 # Armazenamento temporário das respostas
-# (por sessão enviada pelo frontend)
 # ---------------------------------------
 respostas_sessao = {}
 
 # ---------------------------------------
 # Modelo da requisição
+# (AGORA SEM PERGUNTA)
 # ---------------------------------------
 class Pergunta(BaseModel):
-    pergunta: str
     projeto: str
     session_id: str
 
@@ -69,13 +70,14 @@ def salvar_resposta(session_id: str, campo: str, valor: str):
         respostas_sessao[session_id] = {}
     respostas_sessao[session_id][campo] = valor
 
+
 # ---------------------------------------
-# Rotas GPT
+# ROTAS GPT (GERAÇÃO AUTOMÁTICA)
 # ---------------------------------------
 
 @app.post("/visao")
 async def visao(data: Pergunta):
-    prompt = f"Faça uma visão geral detalhada sobre o projeto: {data.projeto}."
+    prompt = f"Crie uma visão geral detalhada, clara e explicativa sobre o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "visao", resposta)
     return {"resposta": resposta}
@@ -83,7 +85,7 @@ async def visao(data: Pergunta):
 
 @app.post("/materiais")
 async def materiais(data: Pergunta):
-    prompt = f"Liste os materiais de baixo custo recomendados para o projeto: {data.projeto}."
+    prompt = f"Liste os materiais necessários, preferindo versões de baixo custo, para o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "materiais", resposta)
     return {"resposta": resposta}
@@ -91,7 +93,7 @@ async def materiais(data: Pergunta):
 
 @app.post("/montagem")
 async def montagem(data: Pergunta):
-    prompt = f"Explique a montagem, esquemas e diagramas necessários para o projeto: {data.projeto}."
+    prompt = f"Explique a montagem, incluindo diagramas e esquemas explicados em texto, do projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "montagem", resposta)
     return {"resposta": resposta}
@@ -99,11 +101,15 @@ async def montagem(data: Pergunta):
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
-    prompt = f"Descreva o procedimento passo a passo para o projeto: {data.projeto}."
+    prompt = f"Descreva o procedimento passo a passo mais claro possível para executar o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "procedimento", resposta)
     return {"resposta": resposta}
 
+
+# ---------------------------------------
+# GERAR PDF
+# ---------------------------------------
 
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
@@ -122,9 +128,7 @@ async def gerar_pdf(data: Pergunta):
     c = canvas.Canvas(pdf_path, pagesize=A4)
     width, height = A4
 
-    # ---------------------------
     # Cabeçalho
-    #---------------------------
     c.setFillColor(colors.red)
     c.rect(0, 0, 25, height, fill=True)
     c.setFillColor(colors.black)
@@ -133,9 +137,7 @@ async def gerar_pdf(data: Pergunta):
     c.setFont("Helvetica-Bold", 12)
     c.drawRightString(width - 40, height - 40, "Gerado pelo Sistema IA Clear")
 
-    # ---------------------------
     # Conteúdo
-    #---------------------------
     texto_completo = f"""
 PROJETO: {data.projeto}
 
