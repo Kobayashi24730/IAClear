@@ -136,7 +136,7 @@ async def gerar_pdf(data: Pergunta):
 
     # ---------------------------
     # Conteúdo
-    ---------------------------
+    #---------------------------
     texto_completo = f"""
 PROJETO: {data.projeto}
 
