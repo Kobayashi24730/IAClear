@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { perguntarIA } from "../assets/api.js";
+import ReactMarkdown from "react-markdown";
 
 export default function AIPage() {
   const location = useLocation();
@@ -72,7 +73,7 @@ export default function AIPage() {
         <p>Carregando...</p>
       ) : (
         <div style={styles.resultado}>
-          <pre>{resultado}</pre>
+          <ReactMarkdown style={styles.markdown}>{resultado}</ReactMarkdown>
         </div>
       )}
     </div>
@@ -130,4 +131,42 @@ const styles = {
     lineHeight: "1.5",
     color: "#222",
   },
+
+  markdown: {
+    fontSize: "17px",
+    lineHeight: "1.6",
+    color: "#222",
+  },
+
+  "markdown h1": {
+    fontSize: "28px",
+    fontWeight: "600",
+    marginTop: "25px",
+  },
+
+  "markdown h2": {
+    fontSize: "24px",
+    fontWeight: "600",
+    marginTop: "20px",
+  },
+
+  "markdown h3": {
+    fontSize: "20px",
+    fontWeight: "600",
+    marginTop: "18px",
+  },
+
+  "markdown p": {
+    margin: "10px 0",
+  },
+
+  "markdown ul": {
+    paddingLeft: "20px",
+  },
+
+  "markdown li": {
+    marginBottom: "6px",
+  },
 };
+
+  
