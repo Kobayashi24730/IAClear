@@ -18,11 +18,14 @@ export default function Navbar() {
       style={{
         width: "100%",
         display: "flex",
+        flexWrap: "wrap",
         justifyContent: "space-between",
         alignItems: "center",
         background: "#fff",
         padding: "15px 16px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        gap: "10px", 
+        boxSizing: "border-box"
       }}
     >
       <input
@@ -31,17 +34,34 @@ export default function Navbar() {
         onChange={e => setProjeto(e.target.value)}
         style={{
           padding: "10px",
-          width: "250px",
+          flex: "1 1 220px", 
+          maxWidth: "300px",
           borderRadius: "10px",
-          border: "1px solid #ccc"
+          border: "1px solid #ccc",
+          boxSizing: "border-box"
         }}
       />
 
-      <ul style={{ display: "flex", gap: "20px", listStyle: "none" }}>
+      <ul
+        style={{
+          display: "flex",
+          flexWrap: "wrap",        
+          justifyContent: "center",
+          gap: "15px",
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+          flex: "1 1 300px",      
+          textAlign: "center"
+        }}
+      >
         {items.map(item => (
           <li
             key={item.rota}
-            style={{ cursor: "pointer" }}
+            style={{
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
             onClick={() => {
               if (!projeto.trim()) {
                 alert("Digite o nome do projeto primeiro!");
@@ -59,4 +79,4 @@ export default function Navbar() {
       </ul>
     </nav>
   );
-}
+          }
