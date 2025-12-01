@@ -5,29 +5,28 @@ import { useNavigate } from "react-router-dom";
 export default function Home() {
   const [hovered, setHovered] = useState(null);
   const [animate, setAnimate] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
 
   const ensinos = [
     { 
-      titulo: "Habilidades técnicas", 
-      paragrafo: 
-        "A IA analisa livros, artigos e conteúdos confiáveis para explicar a Física com precisão — desde as Três Leis de Newton até aplicações modernas." 
+      titulo: "Precisão nas leis da Física", 
+      paragrafo:
+        "A IA explica as Três Leis de Newton com exemplos claros, simulações, aplicações no dia a dia e exercícios gerados sob demanda."
     },
     { 
-      titulo: "Criatividade aplicada", 
-      paragrafo: 
-        "Gere mapas mentais completos, projetos, experimentos e resumos visuais que facilitam a compreensão de qualquer conteúdo." 
+      titulo: "Conteúdo realmente confiável",
+      paragrafo:
+        "A IA consulta livros acadêmicos, bases científicas e artigos revisados (como SciELO, NCBI, Scholar) para montar respostas seguras."
     },
     { 
-      titulo: "Aprendizado inteligente", 
-      paragrafo: 
-        "A IA busca informações em sites confiáveis, cruza dados e entrega respostas claras e contextualizadas para o seu nível de estudo." 
+      titulo: "Aprendizado baseado em dados reais",
+      paragrafo:
+        "O modelo cruza informações de múltiplas fontes, identifica padrões e retorna explicações adaptadas ao nível do usuário."
     },
     { 
-      titulo: "Uso para provas e ensino", 
-      paragrafo: 
-        "Ideal para estudantes que precisam revisar para provas e para professores que desejam explicar Física com apoio tecnológico." 
+      titulo: "Ideal para estudos e professores",
+      paragrafo:
+        "Perfeito para revisar para provas, criar resumos, gerar experimentos, montar planos de aula e tirar dúvidas complexas."
     }
   ];
 
@@ -35,10 +34,6 @@ export default function Home() {
     document.body.style.margin = "0";
     document.body.style.padding = "0";
     setTimeout(() => setAnimate(true), 100);
-
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const theme = {
@@ -52,15 +47,12 @@ export default function Home() {
 
   const styles = {
     page: {
-      scrollBehavior: "smooth",
       width: "100vw",
       minHeight: "100vh",
       background: theme.bg,
       color: theme.text,
       fontFamily: "Segoe UI, Arial, sans-serif",
       overflowX: "hidden",
-      margin: 0,
-      padding: 0,
     },
 
     hero: {
@@ -69,58 +61,43 @@ export default function Home() {
       backgroundImage: `
         linear-gradient(
           to bottom,
-          rgba(244,244,244,0.75) 0%,
-          rgba(244,244,244,0.90) 40%,
-          rgba(244,244,244,1) 70%,
-          ${theme.bg} 100%
+          rgba(244,244,244,0.75),
+          rgba(244,244,244,0.95)
         ),
         url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")
       `,
       backgroundSize: "cover",
       backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       textAlign: "center",
-      padding: "0",
-      margin: 0,
+      padding: "0 20px",
       opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transform: animate ? "translateY(0)" : "translateY(40px)",
       transition: "all 0.8s ease",
-      color: theme.text,
     },
-
-    heroLogo: { width: 120, marginBottom: 10 },
 
     heroTitle: {
       fontSize: "38px",
       fontWeight: "bold",
-      marginBottom: 15,
-      color: theme.text,
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(-50px)",
-      transition: "all 0.8s ease 0.2s",
+      marginBottom: 12,
     },
 
     heroText: {
-      maxWidth: "600px",
-      fontSize: "17px",
+      maxWidth: "650px",
+      fontSize: "18px",
+      lineHeight: "28px",
       opacity: animate ? 1 : 0,
-      lineHeight: "26px",
-      color: theme.text,
-      transform: animate ? "translateX(0)" : "translateX(-50px)",
-      transition: "all 0.8s ease 0.4s",
+      transition: "all 0.8s ease 0.3s",
     },
 
     buttonRow: {
       marginTop: 25,
       display: "flex",
       gap: "15px",
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(-50px)",
-      transition: "all 0.8s ease 0.6s",
+      flexWrap: "wrap",
     },
 
     btn: {
@@ -134,77 +111,59 @@ export default function Home() {
       transition: "0.2s",
     },
 
-    curve: {
-      width: "100vw",
-      height: "80px",
-      background: theme.bg,
-      clipPath: "ellipse(70% 100% at 50% 0%)",
-      marginTop: "-40px",
-    },
-
     section: {
-      padding: "40px 0",
+      padding: "50px 0",
       textAlign: "center",
       width: "100vw",
-      margin: 0,
     },
 
     sectionTitle: {
-      fontSize: "32px",
+      fontSize: "30px",
       fontWeight: "bold",
-      marginBottom: "15px",
-      color: theme.text,
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(50px)",
-      transition: "all 0.8s ease 0.8s",
+      marginBottom: "20px",
     },
 
     ensinoGrid: {
       marginTop: 30,
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "20px",
-      padding: "0 20px",
+      gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+      gap: "25px",
+      padding: "0 30px",              
       width: "100%",
-      maxWidth: "1100px",
+      maxWidth: "1150px",
       marginLeft: "auto",
       marginRight: "auto",
+      boxSizing: "border-box",
     },
 
     ensinoCard: {
       background: theme.card,
       padding: "20px",
       borderRadius: "7px",
+      border: "1px solid #ccc",
       transition: "0.3s",
       cursor: "pointer",
-      border: "1px solid #ccc",
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateY(0)" : "translateY(20px)",
     },
 
     ensinoCardHover: {
-      transform: "translateY(-3px)",
-      boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+      transform: "translateY(-4px)",
+      boxShadow: "0 3px 14px rgba(0,0,0,0.15)",
     },
 
     footer: {
       marginTop: 60,
-      padding: "40px 20px",
-      width: "100vw",
-      background: "#f0f0f0",
-      color: theme.text,
+      padding: "40px 25px",
+      background: "#ececec",
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-      gap: "20px",
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease 1s",
+      gap: "25px",
+      width: "100vw",
     },
 
     footerLogoBox: {
       display: "flex",
       alignItems: "center",
-      gap: "10px",
+      gap: "12px",
     },
 
     footerLogo: {
@@ -214,16 +173,22 @@ export default function Home() {
 
     footerTitle: {
       fontSize: "20px",
+      fontWeight: "bold",
     },
   };
 
   return (
     <div style={styles.page}>
+      
+      {/* HERO */}
       <section style={styles.hero}>
         <h1 style={styles.heroTitle}>Domine a Física com a HogIA</h1>
+
         <p style={styles.heroText}>
-          A HogIA aprende com livros, artigos e conteúdos confiáveis, além de pesquisar em sites para explicar a Física de forma clara.  
-          Descubra as Três Leis de Newton com exemplos reais, mapas mentais e projetos completos para estudo.
+          A HogIA utiliza modelos avançados para interpretar livros didáticos,
+          artigos científicos e bancos de dados educacionais.  
+          Ela explica as Leis de Newton com clareza, gera exemplos, exercícios,
+          projetos e até experimentos que você pode realizar em casa.
         </p>
 
         <div style={styles.buttonRow}>
@@ -231,17 +196,17 @@ export default function Home() {
             style={styles.btn}
             onMouseEnter={(e) => (e.currentTarget.style.background = theme.btnHover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = theme.btn)}
-            onClick={() => navigate("/Como-Usar")}
+            onClick={() => navigate("/como-usar")}
           >
             ❓ Como usar a IA
           </button>
         </div>
       </section>
 
-      <div style={styles.curve}></div>
-
+      {/* CARDS */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Aprenda com conteúdo 100% verificado</h2>
+
         <div style={styles.ensinoGrid}>
           {ensinos.map((ensino, i) => (
             <div
@@ -249,18 +214,18 @@ export default function Home() {
               style={{
                 ...styles.ensinoCard,
                 ...(hovered === i ? styles.ensinoCardHover : {}),
-                transitionDelay: `${0.2 * i}s`,
               }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
             >
               <h3>{ensino.titulo}</h3>
-              <p>{ensino.paragrafo}</p>
+              <p style={{ marginTop: 10 }}>{ensino.paragrafo}</p>
             </div>
           ))}
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer style={styles.footer}>
         <div style={styles.footerLogoBox}>
           <img src={Logo} style={styles.footerLogo} />
@@ -269,7 +234,10 @@ export default function Home() {
 
         <div>
           <h3>Sobre nós</h3>
-          <p>A IA que ensina Física com clareza, precisão e foco no aprendizado real dos estudantes.</p>
+          <p>
+            A IA que ensina Física com clareza, precisão e metodologia baseada em fontes reais.
+            Transformamos estudo em aprendizado verdadeiro.
+          </p>
         </div>
 
         <div>
@@ -278,6 +246,7 @@ export default function Home() {
           <p>ajenteduplo000@gmail.com</p>
         </div>
       </footer>
+
     </div>
   );
-        }
+      }
