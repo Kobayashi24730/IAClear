@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CardFlutuante from "./CardFlutuante.jsx";
+import CardFlutuante from "./AIPage.jsx";
 
 export default function Navbar({ userId }) {
   const [open, setOpen] = useState(false);
@@ -47,32 +47,23 @@ export default function Navbar({ userId }) {
       <ul style={{ display: "flex", gap: "20px", listStyle: "none" }}>
         {items.map((item) => (
           <li
-            key={item.rota}
-            style={{ cursor: "pointer" }}
-            onClick={() => {
-              if (!projeto.trim()) {
-                alert("Digite o nome do projeto primeiro!");
-                return;
-              }
-              setRota(item.rota);
-              setOpen(true);
-            }}
-          >
-            {item.nome}
-          </li>
+			  key={item.rota}
+			  style={{ cursor: "pointer" }}
+			  onClick={() => {
+			    if (!projeto.trim()) {
+			      alert("Digite o nome do projeto primeiro!");
+			      return;
+			    }
+			
+			    navigate(item.rota, {
+			      state: { projeto }
+			    });
+			  }}
+			>
+			  {item.nome}
+			</li>
         ))}
       </ul>
-
-      {open && (
-        <CardFlutuante
-          rota={rota}
-          projeto={projeto}
-          historico={historico}
-          adicionarPesquisa={adicionarPesquisa}
-          fechar={() => setOpen(false)}
-          userId={userId}
-        />
-      )}
     </nav>
   );
 }
