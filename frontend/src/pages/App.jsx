@@ -61,7 +61,7 @@ export default function App() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "0 10px",
+            padding: "0 14px", 
             boxSizing: "border-box",
             position: "fixed",
             top: 0,
@@ -103,9 +103,9 @@ export default function App() {
         {/* MAIN */}
         <main
           style={{
-            paddingTop: "80px",
-            paddingLeft: "0",
-            paddingRight: "0",
+            paddingTop: "90px",
+            paddingLeft: "12px", 
+            paddingRight: "12px", 
             boxSizing: "border-box",
             background: theme.mainBg,
             minHeight: "100vh",
@@ -117,8 +117,15 @@ export default function App() {
             transition: "all 0.6s ease",
           }}
         >
-          {/* NAVBAR */}
-          <div style={{ marginBottom: "20px" }}>
+          {/* NAVBAR — agora com scroll */}
+          <div
+            style={{
+              marginBottom: "20px",
+              overflowX: "auto",
+              whiteSpace: "nowrap",
+              paddingBottom: "6px",
+            }}
+          >
             <Navbar projectId={projectId} />
           </div>
 
@@ -136,4 +143,4 @@ export default function App() {
       </div>
     </BrowserRouter>
   );
-    }
+      }
