@@ -10,7 +10,7 @@ export default function App() {
   const [projectId, setProjectId] = useState(() => {
     const saved = localStorage.getItem("fisiqia_project");
     if (saved) return saved;
-
+n
     const id = crypto.randomUUID();
     localStorage.setItem("fisiqia_project", id);
     return id;
