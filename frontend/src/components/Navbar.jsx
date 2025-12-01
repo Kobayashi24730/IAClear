@@ -16,16 +16,18 @@ export default function Navbar() {
   return (
     <nav
       style={{
-        width: "100%",
+        width: "100vw",
         display: "flex",
         flexWrap: "wrap",
         justifyContent: "space-between",
         alignItems: "center",
         background: "#fff",
-        padding: "15px 16px",
+        padding: "10px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        gap: "10px", 
-        boxSizing: "border-box"
+        gap: "10px",
+        boxSizing: "border-box",
+        margin: 0,
+        overflow: "hidden"  
       }}
     >
       <input
@@ -34,8 +36,8 @@ export default function Navbar() {
         onChange={e => setProjeto(e.target.value)}
         style={{
           padding: "10px",
-          flex: "1 1 220px", 
-          maxWidth: "300px",
+          flex: "1 1 200px",
+          maxWidth: "280px",
           borderRadius: "10px",
           border: "1px solid #ccc",
           boxSizing: "border-box"
@@ -45,14 +47,15 @@ export default function Navbar() {
       <ul
         style={{
           display: "flex",
-          flexWrap: "wrap",        
+          flexWrap: "wrap",
           justifyContent: "center",
-          gap: "15px",
+          gap: "12px",
           listStyle: "none",
           margin: 0,
           padding: 0,
-          flex: "1 1 300px",      
-          textAlign: "center"
+          flex: "1 1 250px",
+          textAlign: "center",
+          boxSizing: "border-box"
         }}
       >
         {items.map(item => (
@@ -60,7 +63,8 @@ export default function Navbar() {
             key={item.rota}
             style={{
               cursor: "pointer",
-              whiteSpace: "nowrap"
+              whiteSpace: "nowrap",
+              fontSize: "14px"
             }}
             onClick={() => {
               if (!projeto.trim()) {
