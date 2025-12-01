@@ -17,42 +17,41 @@ export default function AIPage() {
     return (
       <div style={styles.page}>
         <h2>Projeto não definido</h2>
-        <button onClick={() => navigate("/")}>Voltar</button>
+        <button style={styles.home} onClick={() => navigate("/")}>
+          🏠 Voltar
+        </button>
       </div>
     );
   }
 
-  useEffect(() => {
-    async function carregarResposta() {
-      if (rota === "/relatorio") return;
+  const session_id =
+    localStorage.getItem("session_id") || crypto.randomUUID();
+  localStorage.setItem("session_id", session_id);
 
-      setCarregando(true);
-
-      const session_id =
-        localStorage.getItem("session_id") || crypto.randomUUID();
-      localStorage.setItem("session_id", session_id);
-
-      const resposta = await perguntarIA(rota, projeto, session_id);
-
-      if (resposta?.resposta) {
-        setResultado(resposta.resposta);
-      }
-
-      setCarregando(false);
+  async function carregarResposta() {
+    setCarregando(true);
+    const resposta = await perguntarIA(rota, projeto, session_id);
+    if (resposta?.resposta) {
+      setResultado(resposta.resposta);
     }
+    setCarregando(false);
+  }
 
-    carregarResposta();
+  useEffect(() => {
+    if (rota !== "/relatorio") {
+      carregarResposta();
+    }
   }, [rota, projeto]);
 
   async function baixarPDF() {
-    const session_id = localStorage.getItem("session_id");
-
-    const req = await fetch("https://iaclear-1-backend.onrender.com/relatorio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projeto, session_id })
-    });
-
+    const req = await fetch(
+      "https://iaclear-1-backend.onrender.com/relatorio",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projeto, session_id }),
+      }
+    );
     const blob = await req.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -63,22 +62,29 @@ export default function AIPage() {
 
   return (
     <div style={styles.page}>
-      <div>
-        <div>
-          <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
-          <button style={styles.home} onClick={() => navigate("/ComoUsar")}> Tirar duvidas</button>
+      <div style={styles.topBar}>
+        <div style={styles.leftButtons}>
+          <button style={styles.home} onClick={() => navigate("/")}>
+            🏠 Home
+          </button>
+          <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
+            ❓ Tirar dúvidas
+          </button>
         </div>
         <div>
-          <button style={style.gerar}> Pesquisar</button>
+          <button style={styles.gerar} onClick={carregarResposta}>
+            🔍 Pesquisar
+          </button>
         </div>
       </div>
-      
 
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
       <h3>Projeto: {projeto}</h3>
 
       {rota === "/relatorio" ? (
-        <button style={styles.btn} onClick={baixarPDF}>Gerar PDF</button>
+        <button style={styles.btn} onClick={baixarPDF}>
+          📄 Gerar PDF
+        </button>
       ) : carregando ? (
         <p>Carregando...</p>
       ) : (
@@ -98,8 +104,19 @@ const styles = {
     fontFamily: "'Segoe UI', sans-serif",
   },
 
-  home: {
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: "20px",
+  },
+
+  leftButtons: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  home: {
     padding: "10px 18px",
     borderRadius: "10px",
     border: "none",
@@ -107,6 +124,29 @@ const styles = {
     color: "#fff",
     cursor: "pointer",
     fontSize: "16px",
+    transition: "all 0.2s ease",
+  },
+
+  comousar: {
+    padding: "10px 18px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#444",
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "all 0.2s ease",
+  },
+
+  gerar: {
+    padding: "12px 24px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#0078d4",
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: "17px",
+    transition: "all 0.2s ease",
   },
 
   btn: {
@@ -119,6 +159,7 @@ const styles = {
     marginTop: "16px",
     cursor: "pointer",
     fontSize: "17px",
+    transition: "all 0.2s ease",
   },
 
   resultado: {
@@ -130,5 +171,25 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.1)",
     maxHeight: "65vh",
     overflowY: "auto",
-  }
+  },
 };
+
+Object.assign(styles.home, {
+  ":hover": { background: "#444" },
+  ":active": { transform: "scale(0.97)" },
+});
+
+Object.assign(styles.comousar, {
+  ":hover": { background: "#666" },
+  ":active": { transform: "scale(0.97)" },
+});
+
+Object.assign(styles.gerar, {
+  ":hover": { background: "#005a9e" },
+  ":active": { transform: "scale(0.97)" },
+});
+
+Object.assign(styles.btn, {
+  ":hover": { background: "#005a9e" },
+  ":active": { transform: "scale(0.97)" },
+});
