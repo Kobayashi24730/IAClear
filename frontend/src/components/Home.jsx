@@ -11,22 +11,45 @@ export default function Home() {
     { 
       titulo: "Precisão nas leis da Física", 
       paragrafo:
-        "A IA explica as Três Leis de Newton com exemplos claros, simulações, aplicações no dia a dia e exercícios gerados sob demanda."
+        "A IA explica as Três Leis de Newton com exemplos claros, simulações, comparações visuais e exercícios sob demanda."
     },
     { 
       titulo: "Conteúdo realmente confiável",
       paragrafo:
-        "A IA consulta livros acadêmicos, bases científicas e artigos revisados (como SciELO, NCBI, Scholar) para montar respostas seguras."
+        "A IA consulta livros acadêmicos, bases científicas e artigos revisados (SciELO, NCBI, Scholar) para montar respostas seguras."
     },
     { 
       titulo: "Aprendizado baseado em dados reais",
       paragrafo:
-        "O modelo cruza informações de múltiplas fontes, identifica padrões e retorna explicações adaptadas ao nível do usuário."
+        "O modelo cruza informações de múltiplas fontes e adapta explicações ao seu nível de conhecimento."
     },
     { 
-      titulo: "Ideal para estudos e professores",
+      titulo: "Ideal para estudantes e professores",
       paragrafo:
         "Perfeito para revisar para provas, criar resumos, gerar experimentos, montar planos de aula e tirar dúvidas complexas."
+    },
+    {
+      titulo: "Explicações personalizadas",
+      paragrafo:
+        "A IA ajusta o tipo de explicação: simples, intermediária ou avançada — dependendo do que você pedir."
+    }
+  ];
+
+  const porque = [
+    {
+      titulo: "Transforme seu estudo",
+      texto:
+        "Ao invés de decorar fórmulas, entenda a Física com clareza e lógica. A HogIA ajuda a criar pensamento científico verdadeiro."
+    },
+    {
+      titulo: "Projetos e experimentos",
+      texto:
+        "Receba ideias de experimentos caseiros, projetos escolares e aplicações práticas para compreender os conceitos."
+    },
+    {
+      titulo: "Sempre disponível",
+      texto:
+        "Aprenda na hora que quiser. Tire dúvidas instantaneamente, sem depender de livros longos ou vídeos demorados."
     }
   ];
 
@@ -37,7 +60,7 @@ export default function Home() {
   }, []);
 
   const theme = {
-    bg: "#f4f4f4",
+    bg: "#f7f7f7",
     card: "#ffffff",
     text: "#111111",
     btn: "#0078D4",
@@ -50,19 +73,19 @@ export default function Home() {
       width: "100vw",
       minHeight: "100vh",
       background: theme.bg,
-      color: theme.text,
       fontFamily: "Segoe UI, Arial, sans-serif",
       overflowX: "hidden",
     },
 
+    /* HERO */
     hero: {
       width: "100vw",
-      minHeight: "100vh",
+      minHeight: "95vh",
       backgroundImage: `
         linear-gradient(
           to bottom,
-          rgba(244,244,244,0.75),
-          rgba(244,244,244,0.95)
+          rgba(255,255,255,0.85),
+          rgba(255,255,255,0.97)
         ),
         url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")
       `,
@@ -70,8 +93,8 @@ export default function Home() {
       backgroundPosition: "center",
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
       justifyContent: "center",
+      alignItems: "center",
       textAlign: "center",
       padding: "0 20px",
       opacity: animate ? 1 : 0,
@@ -80,22 +103,25 @@ export default function Home() {
     },
 
     heroTitle: {
-      fontSize: "38px",
+      fontSize: "40px",
       fontWeight: "bold",
-      marginBottom: 12,
+      maxWidth: "900px",
+      marginBottom: "15px",
     },
 
     heroText: {
-      maxWidth: "650px",
-      fontSize: "18px",
-      lineHeight: "28px",
+      maxWidth: "760px",
+      fontSize: "19px",
+      lineHeight: "30px",
+      marginTop: "10px",
       opacity: animate ? 1 : 0,
       transition: "all 0.8s ease 0.3s",
     },
 
     buttonRow: {
-      marginTop: 25,
+      marginTop: 30,
       display: "flex",
+      justifyContent: "center",
       gap: "15px",
       flexWrap: "wrap",
     },
@@ -104,17 +130,18 @@ export default function Home() {
       padding: "12px 25px",
       background: theme.btn,
       border: "none",
-      borderRadius: "4px",
+      borderRadius: "6px",
       fontSize: "16px",
       cursor: "pointer",
       color: "#fff",
       transition: "0.2s",
     },
 
+    /* CARDS */
     section: {
-      padding: "50px 0",
+      padding: "60px 20px",
       textAlign: "center",
-      width: "100vw",
+      width: "100%",
     },
 
     sectionTitle: {
@@ -126,38 +153,58 @@ export default function Home() {
     ensinoGrid: {
       marginTop: 30,
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
       gap: "25px",
-      padding: "0 30px",              
-      width: "100%",
-      maxWidth: "1150px",
+      padding: "0 25px",
+      maxWidth: "1200px",
       marginLeft: "auto",
       marginRight: "auto",
-      boxSizing: "border-box",
     },
 
     ensinoCard: {
       background: theme.card,
-      padding: "20px",
+      padding: "22px",
       borderRadius: "7px",
       border: "1px solid #ccc",
       transition: "0.3s",
       cursor: "pointer",
+      textAlign: "left",
     },
 
     ensinoCardHover: {
-      transform: "translateY(-4px)",
+      transform: "translateY(-5px)",
       boxShadow: "0 3px 14px rgba(0,0,0,0.15)",
     },
 
+    /* POR QUE USAR */
+    porqueGrid: {
+      marginTop: 40,
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: "25px",
+      padding: "0 25px",
+      maxWidth: "1200px",
+      marginLeft: "auto",
+      marginRight: "auto",
+    },
+
+    porqueCard: {
+      background: "#ffffff",
+      padding: "25px",
+      borderRadius: "8px",
+      border: "1px solid #ddd",
+      textAlign: "center",
+    },
+
+    /* FOOTER */
     footer: {
       marginTop: 60,
-      padding: "40px 25px",
-      background: "#ececec",
+      padding: "50px 25px",
+      background: "#e8e8e8",
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-      gap: "25px",
-      width: "100vw",
+      gap: "35px",
+      width: "100%",
     },
 
     footerLogoBox: {
@@ -167,12 +214,12 @@ export default function Home() {
     },
 
     footerLogo: {
-      width: "60px",
+      width: "62px",
       borderRadius: "10px",
     },
 
     footerTitle: {
-      fontSize: "20px",
+      fontSize: "22px",
       fontWeight: "bold",
     },
   };
@@ -185,10 +232,11 @@ export default function Home() {
         <h1 style={styles.heroTitle}>Domine a Física com a HogIA</h1>
 
         <p style={styles.heroText}>
-          A HogIA utiliza modelos avançados para interpretar livros didáticos,
-          artigos científicos e bancos de dados educacionais.  
+          A HogIA utiliza modelos avançados para interpretar livros didáticos, artigos
+          científicos e bases acadêmicas confiáveis.  
           Ela explica as Leis de Newton com clareza, gera exemplos, exercícios,
-          projetos e até experimentos que você pode realizar em casa.
+          projetos e até experimentos que você pode fazer em casa.
+          Tudo no seu ritmo, com explicações que evoluem junto com você.
         </p>
 
         <div style={styles.buttonRow}>
@@ -203,7 +251,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CARDS */}
+      {/* CARDS ENSINO */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Aprenda com conteúdo 100% verificado</h2>
 
@@ -225,6 +273,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* POR QUE USAR */}
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Por que usar a HogIA?</h2>
+
+        <div style={styles.porqueGrid}>
+          {porque.map((p, i) => (
+            <div key={i} style={styles.porqueCard}>
+              <h3>{p.titulo}</h3>
+              <p style={{ marginTop: 10 }}>{p.texto}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer style={styles.footer}>
         <div style={styles.footerLogoBox}>
@@ -235,8 +297,8 @@ export default function Home() {
         <div>
           <h3>Sobre nós</h3>
           <p>
-            A IA que ensina Física com clareza, precisão e metodologia baseada em fontes reais.
-            Transformamos estudo em aprendizado verdadeiro.
+            A IA que ensina Física com clareza, precisão e metodologia baseada
+            em fontes reais. Transformamos estudo em aprendizado verdadeiro.
           </p>
         </div>
 
