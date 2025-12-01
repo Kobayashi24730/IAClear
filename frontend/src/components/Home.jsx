@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import Logo from "../assets/imgs/Logo1.png";
-import ComoUsar from "./ComoUsar.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [hovered, setHovered] = useState(null);
-  const [MostrarComoUsar, SetMostrarComoUsar] = useState(false);
+  const [animate, setAnimate] = useState(false);
   const navigate = useNavigate();
 
   const ensinos = [
@@ -18,28 +17,14 @@ export default function Home() {
   useEffect(() => {
     document.body.style.margin = "0";
     document.body.style.padding = "0";
+    setTimeout(() => setAnimate(true), 100);
   }, []);
 
-  // =======================
-  //  TEMA AUTOMÁTICO
-  // =======================
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
   const theme = prefersDark
-    ? {
-        bg: "#0e0f0f",
-        card: "#141515",
-        text: "white"
-      }
-    : {
-        bg: "#f4f4f4",
-        card: "white",
-        text: "#111"
-      };
+    ? { bg: "#0e0f0f", card: "#141515", text: "white" }
+    : { bg: "#f4f4f4", card: "white", text: "#111" };
 
-  // =======================
-  //  ESTILOS GERAIS
-  // =======================
   const styles = {
     page: {
       scrollBehavior: "smooth",
@@ -63,6 +48,9 @@ export default function Home() {
       justifyContent: "center",
       textAlign: "center",
       padding: "15px",
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transition: "all 0.8s ease",
     },
 
     heroLogo: { width: 120, marginBottom: 10 },
@@ -71,19 +59,27 @@ export default function Home() {
       fontSize: "38px",
       fontWeight: "bold",
       marginBottom: 15,
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transition: "all 0.8s ease 0.2s",
     },
 
     heroText: {
       maxWidth: "600px",
       fontSize: "17px",
-      opacity: 0.8,
+      opacity: animate ? 0.8 : 0,
       lineHeight: "26px",
+      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transition: "all 0.8s ease 0.4s",
     },
 
     buttonRow: {
       marginTop: 25,
       display: "flex",
       gap: "15px",
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transition: "all 0.8s ease 0.6s",
     },
 
     greenBtn: {
@@ -96,10 +92,6 @@ export default function Home() {
       transition: "0.3s",
     },
 
-    greenBtnHover: {
-      filter: "brightness(0.8)",
-    },
-
     curve: {
       width: "100%",
       height: "80px",
@@ -108,9 +100,6 @@ export default function Home() {
       marginTop: "-40px",
     },
 
-    // -------------------------------------
-    // Cards do ensinos (4 cards pequenos)
-    // -------------------------------------
     section: {
       padding: "40px 20px",
       textAlign: "center",
@@ -120,6 +109,9 @@ export default function Home() {
       fontSize: "32px",
       fontWeight: "bold",
       marginBottom: "15px",
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateX(0)" : "translateX(50px)",
+      transition: "all 0.8s ease 0.8s",
     },
 
     ensinoGrid: {
@@ -137,6 +129,8 @@ export default function Home() {
       transition: "0.3s",
       cursor: "pointer",
       border: "1px solid #222",
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateY(0)" : "translateY(20px)",
     },
 
     ensinoCardHover: {
@@ -144,9 +138,6 @@ export default function Home() {
       boxShadow: "0 0 15px rgba(0,255,120,0.2)",
     },
 
-    // -------------------------------------
-    // Footer
-    // -------------------------------------
     footer: {
       marginTop: 60,
       padding: "40px 20px",
@@ -155,6 +146,9 @@ export default function Home() {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
       gap: "20px",
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease 1s",
     },
 
     footerLogoBox: {
@@ -173,32 +167,24 @@ export default function Home() {
     },
   };
 
-  // ============================================================
-  // JSX
-  // ============================================================
   return (
     <div style={styles.page}>
-
-      {/* HERO SECTION */}
       <section style={styles.hero}>
-
         <h1 style={styles.heroTitle}>Domine a Física com a HogIA</h1>
         <p style={styles.heroText}>
           Aprenda conceitos fundamentais de forma prática, intuitiva e direcionada para vestibulares.
         </p>
-
         <div style={styles.buttonRow}>
-          <button style={styles.greenBtn} onClick={() => navigate("/Como-Usar")}>Tirar dúvidas</button>
+          <button style={styles.greenBtn} onClick={() => navigate("/Como-Usar")}>
+            ❓ Tirar dúvidas
+          </button>
         </div>
       </section>
 
-      {/* CURVA */}
       <div style={styles.curve}></div>
 
-      {/* SEÇÃO 2 */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Aprenda com conteúdo 100% verificado</h2>
-
         <div style={styles.ensinoGrid}>
           {ensinos.map((ensino, i) => (
             <div
@@ -206,6 +192,7 @@ export default function Home() {
               style={{
                 ...styles.ensinoCard,
                 ...(hovered === i ? styles.ensinoCardHover : {}),
+                transitionDelay: `${0.2 * i}s`,
               }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
@@ -217,19 +204,15 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* FOOTER */}
       <footer style={styles.footer}>
         <div style={styles.footerLogoBox}>
           <img src={Logo} style={styles.footerLogo} />
           <h2 style={styles.footerTitle}>HogIA</h2>
         </div>
-
         <div>
           <h3>Sobre nós</h3>
           <p>Aprendizado rápido, moderno e direcionado para estudantes do Brasil inteiro.</p>
         </div>
-
         <div>
           <h3>Contato</h3>
           <p>Av. Taltal - João Pessoa - SP</p>
@@ -238,4 +221,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
+      }
