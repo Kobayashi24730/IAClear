@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { perguntarIA } from "../assets/api.js";
 import ReactMarkdown from "react-markdown";
-import "../assets/css/markdown.css";
+import "../assets/CSS/markdown.css";
 
 export default function AIPage() {
   const location = useLocation();
