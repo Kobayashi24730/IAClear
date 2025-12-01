@@ -80,31 +80,54 @@ export default function AIPage() {
 }
 
 const styles = {
-  page: { padding: "20px", maxWidth: "800px", margin: "0 auto" },
+  page: {
+    padding: "20px",
+    maxWidth: "900px",
+    margin: "0 auto",
+    fontFamily: "'Segoe UI', sans-serif",
+  },
+
   home: {
     marginBottom: "20px",
-    padding: "10px 15px",
+    padding: "10px 18px",
     borderRadius: "10px",
     border: "none",
-    background: "#222",
+    background: "#2d2d2d",
     color: "#fff",
-    cursor: "pointer"
+    cursor: "pointer",
+    fontSize: "16px",
   },
+
   btn: {
     width: "100%",
-    padding: "12px",
+    padding: "14px",
     background: "#0078d4",
     color: "#fff",
     border: "none",
     borderRadius: "10px",
-    marginTop: "12px",
-    cursor: "pointer"
+    marginTop: "16px",
+    cursor: "pointer",
+    fontSize: "17px",
   },
+
   resultado: {
-    marginTop: "20px",
-    padding: "15px",
-    borderRadius: "10px",
-    background: "#f0f0f0",
-    whiteSpace: "pre-wrap"
-  }
+    marginTop: "25px",
+    padding: "20px",
+    borderRadius: "14px",
+    background: "rgba(255, 255, 255, 0.7)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(0,0,0,0.1)",
+
+    maxHeight: "65vh",
+    overflowY: "auto",
+
+    scrollbarWidth: "thin",
+  },
+
+  texto: {
+    whiteSpace: "pre-wrap",
+    fontSize: "16px",
+    lineHeight: "1.5",
+    color: "#222",
+  },
 };
