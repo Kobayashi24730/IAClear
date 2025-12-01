@@ -80,19 +80,22 @@ async def visao(data: Pergunta):
     salvar_resposta(data.session_id, "visao", resposta)
     return {"resposta": resposta}
 
+
 @app.post("/materiais")
 async def materiais(data: Pergunta):
-    prompt = f"Liste materiais de baixo custo para o projeto: {data.projeto}."
+    prompt = f"Liste os materiais de baixo custo recomendados para o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "materiais", resposta)
     return {"resposta": resposta}
 
+
 @app.post("/montagem")
 async def montagem(data: Pergunta):
-    prompt = f"Explique montagem, esquema e diagrama do projeto: {data.projeto}."
+    prompt = f"Explique a montagem, esquemas e diagramas necessários para o projeto: {data.projeto}."
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "montagem", resposta)
     return {"resposta": resposta}
+
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
@@ -100,6 +103,7 @@ async def procedimento(data: Pergunta):
     resposta = await gerar_resposta(prompt)
     salvar_resposta(data.session_id, "procedimento", resposta)
     return {"resposta": resposta}
+
 
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
