@@ -5,23 +5,22 @@ from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import tempfile
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-from fastapi.responses import StreamingResponse
-import io
 
-# ---------------------------
-# Carregar variáveis do .env
-# ---------------------------
+# ---------------------------------------
+# Carregar .env
+# ---------------------------------------
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# ---------------------------
-# FastAPI
-# ---------------------------
+# ---------------------------------------
+# FastAPI Config
+# ---------------------------------------
 app = FastAPI()
 
 app.add_middleware(
@@ -32,118 +31,151 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-# ---------------------------
-# Modelo de Requisição
-# ---------------------------
+# ---------------------------------------
+# Armazenamento temporário das respostas
+# (por sessão enviada pelo frontend)
+# ---------------------------------------
+respostas_sessao = {}
+
+# ---------------------------------------
+# Modelo da requisição
+# ---------------------------------------
 class Pergunta(BaseModel):
     pergunta: str
     projeto: str
+    session_id: str
 
-# ---------------------------
-# Função GPT
-# ---------------------------
+# ---------------------------------------
+# GPT
+# ---------------------------------------
 async def gerar_resposta(prompt: str):
     try:
-        print("➡ Enviando prompt:", prompt[:200])
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=400,
+            max_tokens=500,
             timeout=12
         )
-        resposta = completion.choices[0].message.content
-        print("⬅ Resposta obtida")
-        return resposta
+        return completion.choices[0].message.content
     except Exception as e:
         print("❌ ERRO GPT:", e)
         return f"Erro ao gerar resposta: {e}"
 
-# ---------------------------
-# Rotas de GPT
-# ---------------------------
+# ---------------------------------------
+# Função para salvar respostas
+# ---------------------------------------
+def salvar_resposta(session_id: str, campo: str, valor: str):
+    if session_id not in respostas_sessao:
+        respostas_sessao[session_id] = {}
+    respostas_sessao[session_id][campo] = valor
+
+# ---------------------------------------
+# Rotas GPT
+# ---------------------------------------
+
 @app.post("/visao")
 async def visao(data: Pergunta):
     prompt = f"Faça uma visão geral detalhada sobre o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
-    return {"resposta": await gerar_resposta(prompt)}
+    resposta = await gerar_resposta(prompt)
+    salvar_resposta(data.session_id, "visao", resposta)
+    return {"resposta": resposta}
 
 @app.post("/materiais")
 async def materiais(data: Pergunta):
     prompt = f"Liste materiais de baixo custo para o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
-    return {"resposta": await gerar_resposta(prompt)}
+    resposta = await gerar_resposta(prompt)
+    salvar_resposta(data.session_id, "materiais", resposta)
+    return {"resposta": resposta}
 
 @app.post("/montagem")
 async def montagem(data: Pergunta):
     prompt = f"Explique montagem, esquema e diagrama do projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
-    return {"resposta": await gerar_resposta(prompt)}
+    resposta = await gerar_resposta(prompt)
+    salvar_resposta(data.session_id, "montagem", resposta)
+    return {"resposta": resposta}
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
     prompt = f"Descreva o procedimento passo a passo para o projeto: {data.projeto}. Pergunta extra do usuário: {data.pergunta}."
-    return {"resposta": await gerar_resposta(prompt)}
+    resposta = await gerar_resposta(prompt)
+    salvar_resposta(data.session_id, "procedimento", resposta)
+    return {"resposta": resposta}
 
-# ---------------------------
-# Rota de PDF
-# ---------------------------
-
+# ---------------------------------------
+# Rota de PDF com TODAS as respostas
+# ---------------------------------------
 @app.post("/relatorio")
-async def gerar_pdf(dados: Pergunta):
-    texto = dados.pergunta or ""
-    projeto = dados.projeto or "Relatório"
+async def gerar_pdf(data: Pergunta):
 
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    largura, altura = A4
-    
+    # Buscar respostas da sessão
+    session = respostas_sessao.get(data.session_id, {})
+
+    visao_txt = session.get("visao", "Nenhuma resposta gerada.")
+    materiais_txt = session.get("materiais", "Nenhuma resposta gerada.")
+    montagem_txt = session.get("montagem", "Nenhuma resposta gerada.")
+    procedimento_txt = session.get("procedimento", "Nenhuma resposta gerada.")
+
+    # Criar PDF temporário
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    pdf_path = tmp.name
+    tmp.close()
+
+    c = canvas.Canvas(pdf_path, pagesize=A4)
+    width, height = A4
+
+    # ---------------------------
+    # Cabeçalho
+    ---------------------------
     c.setFillColor(colors.red)
-    c.rect(0, 0, 25, altura, fill=True)
+    c.rect(0, 0, 25, height, fill=True)
     c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 26)
-    c.drawString(40, altura - 60, "Relatório de Incidente de RH")
-    c.setFont("Helvetica-Bold", 14)
-    c.drawRightString(largura - 40, altura - 50, "VOLKS Media")
+    c.setFont("Helvetica-Bold", 22)
+    c.drawString(40, height - 50, "Relatório Técnico - Projeto Escolar")
+    c.setFont("Helvetica-Bold", 12)
+    c.drawRightString(width - 40, height - 40, "Gerado pelo Sistema IA Clear")
 
-    def label(texto, x, y):
-        c.setFont("Helvetica-Bold", 11)
-        c.drawString(x, y, texto)
+    # ---------------------------
+    # Conteúdo
+    ---------------------------
+    texto_completo = f"""
+PROJETO: {data.projeto}
 
-    def caixa(x, y, w, h):
-        c.rect(x, y - h, w, h)
+============================
+VISÃO GERAL
+============================
+{visao_txt}
 
-    def checkbox(texto, x, y):
-        c.rect(x, y, 10, 10)
-        c.drawString(x + 15, y - 1, texto)
+============================
+MATERIAIS UTILIZADOS
+============================
+{materiais_txt}
 
-    y = altura - 140
-    label("Data do Incidente", 40, y)
-    caixa(40, y - 5, 150, 22)
-    label("Hora do Incidente", 220, y)
-    caixa(220, y - 5, 150, 22)
-    label("Local do Incidente", 40, y - 40)
-    caixa(40, y - 45, 330, 22)
+============================
+MONTAGEM / DIAGRAMA
+============================
+{montagem_txt}
 
-    checkbox_y = y - 120
-    checkbox("Lesão no local de trabalho", 40, checkbox_y)
-    checkbox("Assédio / Discriminação", 40, checkbox_y - 20)
+============================
+PROCEDIMENTO
+============================
+{procedimento_txt}
+"""
 
-    label("Descrição do incidente", 230, y - 120)
-    caixa(230, y - 125, 300, 120)
-    c.setFont("Helvetica", 10)
-    ty = y - 125 + 110
-    desc_y = y - 125
-    for line in texto.split("\n"):
-        parts = [line[i:i+60] for i in range(0, len(line), 60)]
-        for p in parts:
-            if ty < desc_y:
-                break
-            c.drawString(235, ty, p)
-            ty -= 12
+    c.setFont("Helvetica", 11)
 
-    c.showPage()
+    y = height - 120
+    for linha in texto_completo.split("\n"):
+        if y < 40:
+            c.showPage()
+            c.setFont("Helvetica", 11)
+            y = height - 40
+        c.drawString(40, y, linha)
+        y -= 14
+
     c.save()
-    buffer.seek(0)
-    
-    return StreamingResponse(
-        buffer,
-        media_type="application/pdf",
-        headers={"Content-Disposition": "attachment; filename=incident_report.pdf"}
+
+    return FileResponse(
+        pdf_path,
+        filename="relatorio_projeto.pdf",
+        media_type="application/pdf"
     )
