@@ -9,6 +9,14 @@ import tempfile
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.lib.enums import TA_JUSTIFY
+
 
 # ---------------------------------------
 # Load .env
@@ -273,6 +281,7 @@ async def procedimento(data: Pergunta):
 # ---------------------------------------
 # PDF
 # ---------------------------------------
+
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
     session = respostas_sessao.get(data.session_id, {})
@@ -282,59 +291,55 @@ async def gerar_pdf(data: Pergunta):
     montagem_txt = session.get("montagem", "Nenhuma resposta gerada.")
     procedimento_txt = session.get("procedimento", "Nenhuma resposta gerada.")
 
+    # Arquivo temporário
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf_path = tmp.name
     tmp.close()
 
-    c = canvas.Canvas(pdf_path, pagesize=A4)
-    width, height = A4
+    # Documento PDF (usa engine moderna com quebra automática)
+    doc = SimpleDocTemplate(
+        pdf_path,
+        pagesize=A4,
+        rightMargin=2*cm,
+        leftMargin=2*cm,
+        topMargin=2*cm,
+        bottomMargin=2*cm
+    )
 
-    # Header
-    c.setFillColor(colors.red)
-    c.rect(0, 0, 25, height, fill=True)
+    styles = getSampleStyleSheet()
+    estilo_titulo = styles["Title"]
+    estilo_secao = styles["Heading2"]
 
-    c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 20)
-    c.drawString(40, height - 50, f"Relatório Técnico - {data.projeto}")
+    estilo_texto = styles["BodyText"]
+    estilo_texto.alignment = TA_JUSTIFY  # justificado
 
-    c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(width - 40, height - 40, "Gerado pelo IA Clear")
+    conteudo = []
 
-    texto = f"""
-============================
-VISÃO GERAL
-============================
-{visao_txt}
+    # ----------- Título -----------
+    conteudo.append(Paragraph(f"Relatório Técnico - {data.projeto}", estilo_titulo))
+    conteudo.append(Spacer(1, 15))
 
-============================
-MATERIAIS
-============================
-{materiais_txt}
+    # Função para adicionar seções
+    def add_secao(titulo, texto):
+        conteudo.append(Paragraph(titulo, estilo_secao))
+        conteudo.append(Spacer(1, 8))
+        conteudo.append(Paragraph(texto.replace("\n", "<br/>"), estilo_texto))
+        conteudo.append(Spacer(1, 20))
 
-============================
-MONTAGEM
-============================
-{montagem_txt}
+    # ----------- Seções -----------
+    add_secao("Visão Geral", visao_txt)
+    add_secao("Materiais", materiais_txt)
+    add_secao("Montagem", montagem_txt)
+    add_secao("Procedimento", procedimento_txt)
 
-============================
-PROCEDIMENTO
-============================
-{procedimento_txt}
-"""
+    # ----------- Rodapé com paginação -----------
+    def rodape(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 9)
+        canvas.drawRightString(A4[0] - 2*cm, 1.5*cm, f"Página {doc.page}")
+        canvas.restoreState()
 
-    c.setFont("Helvetica", 11)
-    y = height - 120
+    # Gera o PDF
+    doc.build(conteudo, onLaterPages=rodape, onFirstPage=rodape)
 
-    for linha in texto.split("\n"):
-        if y < 40:
-            c.showPage()
-            c.setFont("Helvetica", 11)
-            y = height - 40
-
-        c.drawString(40, y, linha)
-        y -= 14
-
-    c.save()
-
-    # Apenas o return final
     return FileResponse(pdf_path, filename="relatorio.pdf", media_type="application/pdf")
