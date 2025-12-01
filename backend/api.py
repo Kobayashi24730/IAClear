@@ -8,7 +8,8 @@ import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-import tempfile
+from fastapi.responses import StreamingResponse
+import io
 
 # ---------------------------
 # Carregar variáveis do .env
@@ -83,71 +84,66 @@ async def procedimento(data: Pergunta):
 # ---------------------------
 # Rota de PDF
 # ---------------------------
+
 @app.post("/relatorio")
-async def gerar_pdf(data: Pergunta):
-    texto = data.pergunta or ""
-    projeto = data.projeto or "Relatório"
+async def gerar_pdf(dados: Pergunta):
+    texto = dados.pergunta or ""
+    projeto = dados.projeto or "Relatório"
 
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    path = tmp.name
-    tmp.close()
-
-    c = canvas.Canvas(path, pagesize=A4)
-    width, height = A4
-
-    # Cabeçalho simples
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    largura, altura = A4
+    
     c.setFillColor(colors.red)
-    c.rect(0, 0, 25, height, fill=True)
+    c.rect(0, 0, 25, altura, fill=True)
     c.setFillColor(colors.black)
     c.setFont("Helvetica-Bold", 26)
-    c.drawString(40, height - 60, "HR Incident Report")
+    c.drawString(40, altura - 60, "Relatório de Incidente de RH")
     c.setFont("Helvetica-Bold", 14)
-    c.drawRightString(width - 40, height - 50, "VOLKS Media")
+    c.drawRightString(largura - 40, altura - 50, "VOLKS Media")
 
-    # Funções auxiliares
-    def label(text, x, y):
+    def label(texto, x, y):
         c.setFont("Helvetica-Bold", 11)
-        c.drawString(x, y, text)
+        c.drawString(x, y, texto)
 
-    def box(x, y, w, h):
+    def caixa(x, y, w, h):
         c.rect(x, y - h, w, h)
 
-    def checkbox(text, x, y):
+    def checkbox(texto, x, y):
         c.rect(x, y, 10, 10)
-        c.drawString(x + 15, y - 1, text)
+        c.drawString(x + 15, y - 1, texto)
 
-    # Exemplo: Linha 1 - Data/Hora
-    y = height - 140
-    label("Date of Incident", 40, y)
-    box(40, y - 5, 150, 22)
-    label("Time of Incident", 220, y)
-    box(220, y - 5, 150, 22)
-    label("Location of Incident", 40, y - 40)
-    box(40, y - 45, 330, 22)
+    y = altura - 140
+    label("Data do Incidente", 40, y)
+    caixa(40, y - 5, 150, 22)
+    label("Hora do Incidente", 220, y)
+    caixa(220, y - 5, 150, 22)
+    label("Local do Incidente", 40, y - 40)
+    caixa(40, y - 45, 330, 22)
 
-    # Checkbox exemplo
-    y -= 120
-    checkbox_y = y - 15
-    checkbox("Workplace Injury", 40, checkbox_y)
-    checkbox("Harassment / Discrimination", 40, checkbox_y - 20)
+    checkbox_y = y - 120
+    checkbox("Lesão no local de trabalho", 40, checkbox_y)
+    checkbox("Assédio / Discriminação", 40, checkbox_y - 20)
 
-    # Descrição
-    label("Description of Incident", 230, y)
-    box(230, y - 5, 300, 120)
+    label("Descrição do incidente", 230, y - 120)
+    caixa(230, y - 125, 300, 120)
     c.setFont("Helvetica", 10)
-    desc_y = (height - 140) - 120
-    ty = desc_y + 110
-    wrapped = texto.split("\n")
-    for line in wrapped:
-        if len(line) > 60:
-            parts = [line[i:i+60] for i in range(0, len(line), 60)]
-        else:
-            parts = [line]
+    ty = y - 125 + 110
+    desc_y = y - 125
+    for line in texto.split("\n"):
+        parts = [line[i:i+60] for i in range(0, len(line), 60)]
         for p in parts:
             if ty < desc_y:
                 break
             c.drawString(235, ty, p)
             ty -= 12
 
+    c.showPage()
     c.save()
-    return FileResponse(path, filename="incident_report.pdf", media_type="application/pdf")
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=incident_report.pdf"}
+    )
