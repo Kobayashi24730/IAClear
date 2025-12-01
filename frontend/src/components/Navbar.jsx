@@ -1,15 +1,9 @@
 import { useState } from "react";
-import CardFlutuante from "./AIPage.jsx";
+import { useNavigate } from "react-router-dom";
 
-export default function Navbar({ userId }) {
-  const [open, setOpen] = useState(false);
-  const [rota, setRota] = useState("");
+export default function Navbar() {
   const [projeto, setProjeto] = useState("");
-  const [historico, setHistorico] = useState([]);
-
-  function adicionarPesquisa(texto) {
-    setHistorico(prev => [...prev, texto]);
-  }
+  const navigate = useNavigate();
 
   const items = [
     { nome: "Visão Geral", rota: "/visao" },
@@ -20,18 +14,17 @@ export default function Navbar({ userId }) {
   ];
 
   return (
-	<nav
-	  style={{
-	    width: "100%",
-	    display: "flex",
-	    justifyContent: "space-between",
-	    alignItems: "center",
-	    background: "#fff",
-	    padding: "15px 16px",  // <—— padding igual dos dois lados
-	    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-	    position: "relative"
-	  }}
-	>
+    <nav
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        background: "#fff",
+        padding: "15px 16px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+      }}
+    >
       <input
         placeholder="Nome do projeto..."
         value={projeto}
@@ -45,23 +38,23 @@ export default function Navbar({ userId }) {
       />
 
       <ul style={{ display: "flex", gap: "20px", listStyle: "none" }}>
-        {items.map((item) => (
+        {items.map(item => (
           <li
-			  key={item.rota}
-			  style={{ cursor: "pointer" }}
-			  onClick={() => {
-			    if (!projeto.trim()) {
-			      alert("Digite o nome do projeto primeiro!");
-			      return;
-			    }
-			
-			    navigate(item.rota, {
-			      state: { projeto }
-			    });
-			  }}
-			>
-			  {item.nome}
-			</li>
+            key={item.rota}
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              if (!projeto.trim()) {
+                alert("Digite o nome do projeto primeiro!");
+                return;
+              }
+
+              navigate(item.rota, {
+                state: { projeto }
+              });
+            }}
+          >
+            {item.nome}
+          </li>
         ))}
       </ul>
     </nav>
