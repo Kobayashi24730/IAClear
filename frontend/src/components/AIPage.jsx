@@ -45,7 +45,7 @@ export default function AIPage() {
     const req = await fetch("https://iaclear-1-backend.onrender.com/relatorio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projeto, session_id })
+      body: JSON.stringify({ pergunta: "",projeto, session_id })
     });
 
     const blob = await req.blob();
