@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Home() {
   const [hovered, setHovered] = useState(null);
   const [animate, setAnimate] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
 
   const ensinos = [
@@ -18,50 +19,51 @@ export default function Home() {
     document.body.style.margin = "0";
     document.body.style.padding = "0";
     setTimeout(() => setAnimate(true), 100);
+
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  
   const theme = {
-    bg: "#f4f4f4",      // fundo geral
-    card: "#ffffff",     // cartões
-    text: "#111111",     // textos
-    btn: "#0078D4",      // botão azul Windows
-    btnHover: "#005A9E", // hover botão
-    header: "#ffffff",   // header/menu
+    bg: "#f4f4f4",     
+    card: "#ffffff",   
+    text: "#111111",   
+    btn: "#0078D4",    
+    btnHover: "#005A9E", 
+    header: "#ffffff",   
   };
 
   const styles = {
-  page: {
-    scrollBehavior: "smooth",
-    width: "100%",
-    minHeight: "100vh",
-    background: theme.bg,
-    color: theme.text,
-    fontFamily: "Segoe UI, Arial, sans-serif",
-    overflowX: "hidden",
-    margin: 0,
-    padding: 0,
-  },
+    page: {
+      scrollBehavior: "smooth",
+      width: "100%",
+      minHeight: "100vh",
+      background: theme.bg,
+      color: theme.text,
+      fontFamily: "Segoe UI, Arial, sans-serif",
+      overflowX: "hidden",
+      margin: 0,
+      padding: 0,
+    },
 
-  hero: {
-    width: "100%",
-    minHeight: "100vh", // preenche toda a tela
-    backgroundImage: `linear-gradient(to bottom, rgba(244,244,244,0.85) 40%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    padding: "0 15px", // diminui o padding vertical
-    opacity: animate ? 1 : 0,
-    transform: animate ? "translateX(0)" : "translateX(-50px)",
-    transition: "all 0.8s ease",
-    color: theme.text,
-  },
-
-    heroLogo: { width: 120, marginBottom: 10 },
+    hero: {
+      width: "100%",
+      minHeight: "100vh",
+      backgroundImage: `linear-gradient(to bottom, rgba(244,244,244,0.85) 50%, ${theme.bg} 100%), url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=80")`,
+      backgroundSize: "cover",
+      backgroundPosition: `center ${scrollY * 0.3}px`, 
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "0 15px",
+      color: theme.text,
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateX(0)" : "translateX(-50px)",
+      transition: "all 0.8s ease",
+    },
 
     heroTitle: {
       fontSize: "38px",
