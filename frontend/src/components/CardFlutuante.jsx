@@ -19,33 +19,33 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
   }
 
   async function baixarPDF() {
-    if (!pergunta.trim()) return;
+  if (!pergunta.trim()) return;
 
-    setCarregando(true);
-    try {
-      const req = await fetch("https://iaclear-1-backend.onrender.com"; /", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pergunta, projeto })
-      });
+  setCarregando(true);
+  try {
+    const req = await fetch("https://iaclear-1-backend.onrender.com/relatorio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pergunta, projeto })
+    });
 
-      if (!req.ok) throw new Error("Erro ao gerar PDF");
+    if (!req.ok) throw new Error("Erro ao gerar PDF");
 
-      const blob = await req.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "relatorio.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    const blob = await req.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "relatorio.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
-    } catch (err) {
-      console.error(err);
-      setResultado("Erro ao gerar PDF");
-    } finally {
-      setCarregando(false);
-    }
+  } catch (err) {
+    console.error(err);
+    setResultado("Erro ao gerar PDF");
+  } finally {
+    setCarregando(false);
+  }
   }
 
   function renderConteudo() {
