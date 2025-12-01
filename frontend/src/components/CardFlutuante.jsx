@@ -21,28 +21,22 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
     setCarregando(false);
   }
 
-  async function gerarRelatorio() {
-    setCarregando(true);
-
-    const resposta = await perguntarIA(
-      "/relatorio",
-      pergunta || "Gerar relatório completo",
-      projeto
-    );
-
-    setResultado(resposta.resposta || "Erro ao gerar relatório");
-    setCarregando(false);
-  }
-
   async function baixarPDF() {
+  if (!pergunta.trim()) return;
+
+  setCarregando(true);
+
+  try {
     const req = await fetch("http://localhost:8000/relatorio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        pergunta: resultado,
+        pergunta,
         projeto
       })
     });
+
+    if (!req.ok) throw new Error("Erro ao gerar PDF");
 
     const blob = await req.blob();
     const url = window.URL.createObjectURL(blob);
@@ -50,7 +44,16 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
     const a = document.createElement("a");
     a.href = url;
     a.download = "relatorio.pdf";
+    document.body.appendChild(a);
     a.click();
+    a.remove();
+
+  } catch (err) {
+    console.error(err);
+    setResultado("Erro ao gerar PDF");
+  } finally {
+    setCarregando(false);
+  }
   }
 
   function renderConteudo() {
@@ -127,25 +130,30 @@ export default function CardFlutuante({ rota, projeto, fechar, historico, adicio
             </button>
           </>
         );
+        
+  case "/relatorio":
+    return (
+      <>
+        <h2>Gerar Relatório</h2>
+        <small>Gerar arquivo PDF automático</small>
 
-      case "/relatorio":
-  return (
-    <>
-      <h2>Gerar Relatório</h2>
-      <small>Gerar arquivo PDF automático</small>
+        <textarea
+          placeholder="Texto do relatório..."
+          value={pergunta}
+          onChange={e => setPergunta(e.target.value)}
+          style={style.textarea}
+        />
 
-      <textarea
-        placeholder="Texto do relatório..."
-        value={pergunta}
-        onChange={e => setPergunta(e.target.value)}
-        style={style.textarea}
-      />
+        <button style={style.btn} onClick={baixarPDF}>
+          Baixar PDF
+        </button>
+      </>
+    );
 
-      <button style={style.btn} onClick={gerarRelatorio}>
-        Baixar PDF
-      </button>
-    </>
-  );
+  // outros cases...
+  default:
+    return null;
+ }     
 
   return (
     <div style={style.overlay}>
