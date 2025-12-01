@@ -125,7 +125,7 @@ async def gerar_pdf(data: Pergunta):
 
     # ---------------------------
     # Cabeçalho
-    ---------------------------
+    #---------------------------
     c.setFillColor(colors.red)
     c.rect(0, 0, 25, height, fill=True)
     c.setFillColor(colors.black)
