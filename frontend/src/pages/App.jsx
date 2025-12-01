@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.jsx";
 import Home from "../components/Home.jsx";
 import ComoUsar from "../components/ComoUsar.jsx";
+import AIPage from "../components/AIPage.jsx";
 
 export default function App() {
   const [projectId, setProjectId] = useState(() => {
@@ -24,7 +25,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div style={{ fontFamily: "Inter, Arial, sans-serif" }}>
-        {/* HEADER FIXO */}
+        {}
         <header
           style={{
             width: "100%",
@@ -65,16 +66,15 @@ export default function App() {
           </div>
         </header>
 
-        {/* CONTEÚDO PRINCIPAL */}
         <main
           style={{
-            paddingTop: "80px", // para não ficar atrás do header
-            paddingLeft: "20px", // espaçamento lateral consistente
+            paddingTop: "80px", 
+            paddingLeft: "20px",
             paddingRight: "20px",
             boxSizing: "border-box",
           }}
         >
-          {/* NAVBAR abaixo do header */}
+          
           <div style={{ marginBottom: "20px" }}>
             <Navbar projectId={projectId} />
           </div>
@@ -82,6 +82,15 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/como-usar" element={<ComoUsar />} />
+          </Routes>
+
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/visao" element={<AIPage />} />
+            <Route path="/materiais" element={<AIPage />} />
+            <Route path="/montagem" element={<AIPage />} />
+            <Route path="/procedimento" element={<AIPage />} />
+            <Route path="/relatorio" element={AIPage />} />
           </Routes>
         </main>
       </div>
