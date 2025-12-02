@@ -7,11 +7,68 @@ import "../assets/CSS/markdown.css";
 export default function AIPage() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const rota = location.pathname;
-  const projeto = location.state?.projeto || "";
+  const [projeto, setProjeto] = useState(location.state?.projeto || "");
 
   const [resultado, setResultado] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  const session_id =
+    localStorage.getItem("session_id") || crypto.randomUUID();
+  localStorage.setItem("session_id", session_id);
+
+  async function carregarResposta(titulo = projeto) {
+    if (!titulo.trim()) return;
+
+    setCarregando(true);
+    const resposta = await perguntarIA(rota, titulo, session_id);
+
+    if (resposta?.resposta) {
+      setResultado(resposta.resposta);
+    }
+
+    setCarregando(false);
+  }
+
+  useEffect(() => {
+    if (rota !== "/relatorio") {
+      carregarResposta(projeto);
+    }
+  }, [rota]);
+
+  async function pesquisarNovamente() {
+    const novoNome = prompt("Digite o novo nome do projeto:", projeto);
+
+    if (!novoNome) return;
+
+    setProjeto(novoNome);
+
+    navigate(rota, {
+      replace: true,
+      state: { projeto: novoNome }
+    });
+
+    await carregarResposta(novoNome);
+  }
+
+  async function baixarPDF() {
+    const req = await fetch(
+      "https://iaclear-1-backend.onrender.com/relatorio",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projeto, session_id })
+      }
+    );
+
+    const blob = await req.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "relatorio.pdf";
+    a.click();
+  }
 
   if (!projeto) {
     return (
@@ -24,42 +81,6 @@ export default function AIPage() {
     );
   }
 
-  const session_id =
-    localStorage.getItem("session_id") || crypto.randomUUID();
-  localStorage.setItem("session_id", session_id);
-
-  async function carregarResposta() {
-    setCarregando(true);
-    const resposta = await perguntarIA(rota, projeto, session_id); 
-    if (resposta?.resposta) {
-      setResultado(resposta.resposta);
-    }
-    setCarregando(false);
-  }
-
-  useEffect(() => {
-    if (rota !== "/relatorio") {
-      carregarResposta(); 
-    }
-  }, [rota, projeto]);
-
-  async function baixarPDF() {
-    const req = await fetch(
-      "https://iaclear-1-backend.onrender.com/relatorio",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projeto, session_id }),
-      }
-    );
-    const blob = await req.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "relatorio.pdf";
-    a.click();
-  }
-
   return (
     <div style={styles.page}>
       <div style={styles.topBar}>
@@ -67,15 +88,17 @@ export default function AIPage() {
           <button style={styles.home} onClick={() => navigate("/")}>
             🏠 Home
           </button>
-          <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
+          <button
+            style={styles.comousar}
+            onClick={() => navigate("/ComoUsar")}
+          >
             ❓ Tirar dúvidas
           </button>
         </div>
-        <div>
-          <button style={styles.gerar} onClick={carregarResposta}>
-            🔍 Pesquisar
-          </button>
-        </div>
+
+        <button style={styles.gerar} onClick={pesquisarNovamente}>
+          🔍 Pesquisar
+        </button>
       </div>
 
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
@@ -89,32 +112,32 @@ export default function AIPage() {
         <p>Carregando...</p>
       ) : (
         <div style={styles.resultado}>
-          <ReactMarkdown className="markdown-body">{resultado}</ReactMarkdown>
+          <ReactMarkdown className="markdown-body">
+            {resultado}
+          </ReactMarkdown>
         </div>
       )}
     </div>
   );
 }
 
-
 const styles = {
   page: {
     padding: "20px",
     maxWidth: "900px",
     margin: "0 auto",
-    fontFamily: "'Segoe UI', sans-serif",
+    fontFamily: "'Segoe UI', sans-serif"
   },
 
   topBar: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
+    marginBottom: "20px"
   },
 
   leftButtons: {
     display: "flex",
-    gap: "10px",
+    gap: "10px"
   },
 
   home: {
@@ -123,9 +146,7 @@ const styles = {
     border: "none",
     background: "#2d2d2d",
     color: "#fff",
-    cursor: "pointer",
-    fontSize: "16px",
-    transition: "all 0.2s ease",
+    cursor: "pointer"
   },
 
   comousar: {
@@ -134,9 +155,7 @@ const styles = {
     border: "none",
     background: "#444",
     color: "#fff",
-    cursor: "pointer",
-    fontSize: "16px",
-    transition: "all 0.2s ease",
+    cursor: "pointer"
   },
 
   gerar: {
@@ -145,9 +164,7 @@ const styles = {
     border: "none",
     background: "#0078d4",
     color: "#fff",
-    cursor: "pointer",
-    fontSize: "17px",
-    transition: "all 0.2s ease",
+    cursor: "pointer"
   },
 
   btn: {
@@ -158,19 +175,17 @@ const styles = {
     border: "none",
     borderRadius: "10px",
     marginTop: "16px",
-    cursor: "pointer",
-    fontSize: "17px",
-    transition: "all 0.2s ease",
+    cursor: "pointer"
   },
 
   resultado: {
     marginTop: "25px",
     padding: "20px",
     borderRadius: "14px",
-    background: "rgba(255, 255, 255, 0.7)",
+    background: "rgba(255,255,255,0.7)",
     backdropFilter: "blur(10px)",
     border: "1px solid rgba(0,0,0,0.1)",
     maxHeight: "65vh",
-    overflowY: "auto",
-  },
+    overflowY: "auto"
+  }
 };
