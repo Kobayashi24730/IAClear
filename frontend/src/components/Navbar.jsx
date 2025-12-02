@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const [projeto, setProjeto] = useState("");
+  const [projeto, setProjeto] = useState(localStorage.getItem("projeto") || "");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("projeto", projeto);
+  }, [projeto]);
 
   const items = [
     { nome: "Visão Geral", rota: "/visao" },
     { nome: "Materiais", rota: "/materiais" },
     { nome: "Montagem", rota: "/montagem" },
     { nome: "Procedimento", rota: "/procedimento" },
-    { nome: "Relatório", rota: "/relatorio" }
+    { nome: "Relatório", rota: "/relatorio" },
   ];
 
   return (
@@ -24,7 +28,7 @@ export default function Navbar() {
         background: "#fff",
         padding: "12px 16px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
       }}
     >
       <input
@@ -37,7 +41,7 @@ export default function Navbar() {
           maxWidth: "100%",
           borderRadius: "10px",
           border: "1px solid #ccc",
-          boxSizing: "border-box"
+          boxSizing: "border-box",
         }}
       />
 
@@ -49,7 +53,7 @@ export default function Navbar() {
           gap: "15px",
           listStyle: "none",
           margin: 0,
-          padding: 0
+          padding: 0,
         }}
       >
         {items.map((item) => (
@@ -58,7 +62,7 @@ export default function Navbar() {
             style={{
               cursor: "pointer",
               whiteSpace: "nowrap",
-              fontSize: "15px"
+              fontSize: "15px",
             }}
             onClick={() => {
               if (!projeto.trim()) {
@@ -66,9 +70,7 @@ export default function Navbar() {
                 return;
               }
 
-              navigate(item.rota, {
-                state: { projeto }
-              });
+              navigate(item.rota);
             }}
           >
             {item.nome}
