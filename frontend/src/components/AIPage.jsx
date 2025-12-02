@@ -33,8 +33,11 @@ export default function AIPage() {
     setCarregando(true);
     const resposta = await perguntarIA(rota, projeto, session_id);
 
+  
     if (resposta?.resposta) {
-      setResultado(resposta.resposta);
+      setResultado(resposta.resposta.content || "");
+    } else {
+      setResultado("⚠️ Nenhuma resposta recebida do servidor.");
     }
 
     setCarregando(false);
@@ -71,6 +74,7 @@ export default function AIPage() {
           <button style={styles.home} onClick={() => navigate("/")}>
             🏠 Home
           </button>
+
           <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
             ❓ Tirar dúvidas
           </button>
@@ -92,7 +96,10 @@ export default function AIPage() {
         <p>Carregando...</p>
       ) : (
         <div style={styles.resultado}>
-          <ReactMarkdown className="markdown-body">{resultado}</ReactMarkdown>
+          {/* Agora funciona corretamente */}
+          <ReactMarkdown className="markdown-body">
+            {resultado}
+          </ReactMarkdown>
         </div>
       )}
     </div>
