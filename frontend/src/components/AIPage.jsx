@@ -10,6 +10,7 @@ export default function AIPage() {
   const rota = location.pathname;
   const projeto = location.state?.projeto || "";
 
+  const [pergunta, setPergunta] = useState(""); 
   const [resultado, setResultado] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -28,9 +29,10 @@ export default function AIPage() {
     localStorage.getItem("session_id") || crypto.randomUUID();
   localStorage.setItem("session_id", session_id);
 
-  async function carregarResposta() {
+  async function carregarResposta(perguntaAtual) {
+    if (!perguntaAtual) return; 
     setCarregando(true);
-    const resposta = await perguntarIA(rota, projeto, session_id);
+    const resposta = await perguntarIA(rota, projeto, session_id, perguntaAtual);
     if (resposta?.resposta) {
       setResultado(resposta.resposta);
     }
@@ -39,7 +41,7 @@ export default function AIPage() {
 
   useEffect(() => {
     if (rota !== "/relatorio") {
-      carregarResposta();
+      carregarResposta(pergunta);
     }
   }, [rota, projeto]);
 
@@ -67,12 +69,25 @@ export default function AIPage() {
           <button style={styles.home} onClick={() => navigate("/")}>
             🏠 Home
           </button>
-          <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
+          <button style={styles.comousar} onClick={() => navigate("/como-usar")}>
             ❓ Tirar dúvidas
           </button>
         </div>
-        <div>
-          <button style={styles.gerar} onClick={carregarResposta}>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <input
+            type="text"
+            value={pergunta}
+            onChange={(e) => setPergunta(e.target.value)}
+            placeholder="Digite sua pergunta"
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              fontSize: "16px",
+              width: "300px",
+            }}
+          />
+          <button style={styles.gerar} onClick={() => carregarResposta(pergunta)}>
             🔍 Pesquisar
           </button>
         </div>
@@ -173,23 +188,3 @@ const styles = {
     overflowY: "auto",
   },
 };
-
-Object.assign(styles.home, {
-  ":hover": { background: "#444" },
-  ":active": { transform: "scale(0.97)" },
-});
-
-Object.assign(styles.comousar, {
-  ":hover": { background: "#666" },
-  ":active": { transform: "scale(0.97)" },
-});
-
-Object.assign(styles.gerar, {
-  ":hover": { background: "#005a9e" },
-  ":active": { transform: "scale(0.97)" },
-});
-
-Object.assign(styles.btn, {
-  ":hover": { background: "#005a9e" },
-  ":active": { transform: "scale(0.97)" },
-});
