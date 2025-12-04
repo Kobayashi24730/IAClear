@@ -1,19 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [projeto, setProjeto] = useState(localStorage.getItem("projeto") || "");
   const navigate = useNavigate();
+  const navRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem("projeto", projeto);
     window.dispatchEvent(new Event("projetoAtualizado"));
   }, [projeto]);
 
+  // 🔥 Agora o padding é calculado exatamente com a altura da navbar
   useEffect(() => {
-    document.body.style.paddingTop = "95px";
+    function atualizarPadding() {
+      if (navRef.current) {
+        document.body.style.paddingTop = navRef.current.offsetHeight + "px";
+      }
+    }
+    atualizarPadding();
+    window.addEventListener("resize", atualizarPadding);
+
     return () => {
       document.body.style.paddingTop = "0px";
+      window.removeEventListener("resize", atualizarPadding);
     };
   }, []);
 
@@ -27,45 +37,78 @@ export default function Navbar() {
 
   return (
     <nav
+      ref={navRef}
       style={{
         width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
         background: "#fff",
-        padding: "12px 16px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        boxSizing: "border-box",
         position: "fixed",
         top: 0,
         left: 0,
         zIndex: 1000,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        padding: "10px 14px",
       }}
     >
+      {/* Linha superior */}
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <h2 style={{ margin: 0 }}>FisiQIA</h2>
+
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <span style={{ fontSize: "13px", color: "#555" }}>
+            Projeto: <b>{projeto || "nenhum"}</b>
+          </span>
+          <button
+            style={{
+              padding: "6px 10px",
+              fontSize: "12px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              cursor: "pointer",
+            }}
+            onClick={() => setProjeto("")}
+          >
+            Novo Projeto
+          </button>
+        </div>
+      </div>
+
+      {/* Input */}
       <input
-        placeholder="Nome do projeto..."
+        placeholder="Digite o nome do projeto..."
         value={projeto}
         onChange={(e) => setProjeto(e.target.value)}
         style={{
+          marginTop: "10px",
           padding: "10px",
-          width: "260px",
-          maxWidth: "100%",
+          width: "100%",
+          maxWidth: "380px",
           borderRadius: "10px",
           border: "1px solid #ccc",
-          marginBottom: "10px",
+          display: "block",
+          marginLeft: "auto",
+          marginRight: "auto",
         }}
       />
 
+      {/* Menu inferior */}
       <ul
         style={{
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: "14px",
+          gap: "16px",
           listStyle: "none",
-          margin: 0,
+          marginTop: "12px",
           padding: 0,
-          width: "100%",
         }}
       >
         {items.map((item) => (
@@ -73,11 +116,9 @@ export default function Navbar() {
             key={item.rota}
             style={{
               cursor: "pointer",
-              whiteSpace: "nowrap",
               fontSize: "15px",
-              padding: "6px 10px",
-              borderRadius: "8px",
-              transition: "0.2s",
+              padding: "5px 8px",
+              borderRadius: "6px",
             }}
             onClick={() => {
               if (!projeto.trim()) {
@@ -86,8 +127,6 @@ export default function Navbar() {
               }
               navigate(item.rota);
             }}
-            onMouseEnter={(e) => (e.target.style.background = "#f5f5f5")}
-            onMouseLeave={(e) => (e.target.style.background = "transparent")}
           >
             {item.nome}
           </li>
