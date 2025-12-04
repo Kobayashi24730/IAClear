@@ -51,7 +51,7 @@ export default function App() {
           overflowX: "hidden",
         }}
       >
-        {/* HEADER FIXO */}
+        
         <header
           style={{
             width: "100%",
@@ -100,12 +100,9 @@ export default function App() {
           </div>
         </header>
 
-        {/* MAIN */}
         <main
           style={{
-            paddingTop: "90px",
-            paddingLeft: "0px",
-            paddingRight: "0px",
+            paddingTop: "64px",
             background: theme.mainBg,
             minHeight: "100vh",
             width: "100%",
@@ -117,19 +114,9 @@ export default function App() {
             transition: "all 0.6s ease",
           }}
         >
-          {/* NAVBAR */}
-          <div
-            style={{
-              width: "100%",
-              overflowX: "auto",
-              padding: "0",
-              margin: 0,
-            }}
-          >
-            <Navbar projectId={projectId} />
-          </div>
+          
+          <Navbar projectId={projectId} />
 
-          {/* CONTEÚDO DAS ROTAS */}
           <div style={{ padding: "0 12px", boxSizing: "border-box" }}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -145,4 +132,4 @@ export default function App() {
       </div>
     </BrowserRouter>
   );
-              }
+          }
