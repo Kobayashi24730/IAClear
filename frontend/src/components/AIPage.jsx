@@ -30,14 +30,23 @@ export default function AIPage() {
   localStorage.setItem("session_id", session_id);
 
   async function carregarResposta() {
-    setCarregando(true);
-    const resposta = await perguntarIA(rota, projeto, session_id);
+    try {
+      setCarregando(true);
 
-    if (resposta?.resposta) {
-      setResultado(resposta.resposta);
+      const resposta = await perguntarIA(rota, projeto, session_id);
+
+      console.log("📩 Retorno da API:", resposta);
+
+      setResultado(
+        resposta?.resposta?.content ||
+          resposta?.resposta ||
+          "⚠️ Nenhuma resposta retornada."
+      );
+    } catch (e) {
+      setResultado("❗ Erro ao carregar. Tente novamente.");
+    } finally {
+      setCarregando(false);
     }
-
-    setCarregando(false);
   }
 
   useEffect(() => {
@@ -89,7 +98,7 @@ export default function AIPage() {
           📄 Gerar PDF
         </button>
       ) : carregando ? (
-        <p>Carregando...</p>
+        <p style={styles.load}>Carregando...</p>
       ) : (
         <div style={styles.resultado}>
           <ReactMarkdown className="markdown-body">{resultado}</ReactMarkdown>
@@ -102,20 +111,17 @@ export default function AIPage() {
 const styles = {
   page: {
     padding: "20px",
-    width: "100%",
     maxWidth: "900px",
     margin: "0 auto",
     fontFamily: "'Segoe UI', sans-serif",
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
+    overflow: "hidden",
   },
 
   topBar: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "20px",
+    alignItems: "center",
   },
 
   leftButtons: {
@@ -165,16 +171,19 @@ const styles = {
     fontSize: "17px",
   },
 
-  /* 🎯 Correção REAL da rolagem */
   resultado: {
     marginTop: "25px",
     padding: "20px",
-    background: "#fff",
-    borderRadius: "12px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+    borderRadius: "14px",
+    background: "rgba(255, 255, 255, 0.85)",
+    border: "1px solid rgba(0,0,0,0.1)",
+    maxHeight: "70vh",
     overflowY: "auto",
-    flexGrow: 1,              // ocupa toda a área restante
-    maxHeight: "65vh",        // garante scroll sem estourar tela
-    boxSizing: "border-box",
+    scrollbarWidth: "thin",
+  },
+
+  load: {
+    fontSize: "18px",
+    opacity: 0.7,
   },
 };
