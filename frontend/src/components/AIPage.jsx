@@ -9,10 +9,19 @@ export default function AIPage() {
   const navigate = useNavigate();
   const rota = location.pathname;
 
-  const projeto = localStorage.getItem("projeto") || "";
-
+  const [projeto, setProjeto] = useState(localStorage.getItem("projeto") || "");
   const [resultado, setResultado] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  useEffect(() => {
+    function atualizar() {
+      setProjeto(localStorage.getItem("projeto") || "");
+    }
+
+    window.addEventListener("projetoAtualizado", atualizar);
+
+    return () => window.removeEventListener("projetoAtualizado", atualizar);
+  }, []);
 
   if (!projeto.trim()) {
     return (
@@ -31,14 +40,14 @@ export default function AIPage() {
 
   async function carregarResposta() {
     setCarregando(true);
-    const resposta = await perguntarIA(rota, projeto, session_id);
 
-  
-    if (resposta?.resposta) {
-      setResultado(resposta.resposta.content || "");
-    } else {
-      setResultado("⚠️ Nenhuma resposta recebida do servidor.");
-    }
+    
+    const nomeAtual = localStorage.getItem("projeto") || "";
+    setProjeto(nomeAtual);
+
+    const resposta = await perguntarIA(rota, nomeAtual, session_id);
+
+    if (resposta?.resposta) setResultado(resposta.resposta);
 
     setCarregando(false);
   }
@@ -74,7 +83,6 @@ export default function AIPage() {
           <button style={styles.home} onClick={() => navigate("/")}>
             🏠 Home
           </button>
-
           <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
             ❓ Tirar dúvidas
           </button>
@@ -96,10 +104,7 @@ export default function AIPage() {
         <p>Carregando...</p>
       ) : (
         <div style={styles.resultado}>
-          {/* Agora funciona corretamente */}
-          <ReactMarkdown className="markdown-body">
-            {resultado}
-          </ReactMarkdown>
+          <ReactMarkdown className="markdown-body">{resultado}</ReactMarkdown>
         </div>
       )}
     </div>
@@ -113,18 +118,15 @@ const styles = {
     margin: "0 auto",
     fontFamily: "'Segoe UI', sans-serif",
   },
-
   topBar: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "20px",
   },
-
   leftButtons: {
     display: "flex",
     gap: "10px",
   },
-
   home: {
     padding: "10px 18px",
     borderRadius: "10px",
@@ -134,7 +136,6 @@ const styles = {
     cursor: "pointer",
     fontSize: "16px",
   },
-
   comousar: {
     padding: "10px 18px",
     borderRadius: "10px",
@@ -144,7 +145,6 @@ const styles = {
     cursor: "pointer",
     fontSize: "16px",
   },
-
   gerar: {
     padding: "12px 24px",
     borderRadius: "10px",
@@ -154,7 +154,6 @@ const styles = {
     cursor: "pointer",
     fontSize: "17px",
   },
-
   btn: {
     width: "100%",
     padding: "14px",
@@ -166,7 +165,6 @@ const styles = {
     cursor: "pointer",
     fontSize: "17px",
   },
-
   resultado: {
     marginTop: "25px",
     padding: "20px",
