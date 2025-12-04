@@ -20,9 +20,7 @@ export default function Navbar() {
   function atualizarProjeto(e) {
     setProjeto(e.target.value);
     localStorage.setItem("projeto", e.target.value);
-
-    
-    window.dispatchEvent(new Event("projetoAtualizado"));
+    window.dispatchEvent(new Event("projetoAtualizado")); 
   }
 
   return (
@@ -31,11 +29,17 @@ export default function Navbar() {
         width: "100%",
         display: "flex",
         flexWrap: "wrap",
-        justifyContent: "space-between",
+        justifyContent: "center",
+        gap: "10px",
         alignItems: "center",
         background: "#fff",
         padding: "12px 16px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        boxSizing: "border-box",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 1000,
       }}
     >
       <input
@@ -56,10 +60,11 @@ export default function Navbar() {
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: "15px",
+          gap: "12px",
           listStyle: "none",
-          margin: 0,
+          width: "100%",
           padding: 0,
+          margin: 0,
         }}
       >
         {items.map((item) => (
@@ -75,7 +80,6 @@ export default function Navbar() {
                 alert("Digite o nome do projeto primeiro!");
                 return;
               }
-
               navigate(item.rota);
             }}
           >
