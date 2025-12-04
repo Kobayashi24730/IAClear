@@ -17,6 +17,14 @@ export default function Navbar() {
     { nome: "Relatório", rota: "/relatorio" },
   ];
 
+  function atualizarProjeto(e) {
+    setProjeto(e.target.value);
+    localStorage.setItem("projeto", e.target.value);
+
+    
+    window.dispatchEvent(new Event("projetoAtualizado"));
+  }
+
   return (
     <nav
       style={{
@@ -28,20 +36,18 @@ export default function Navbar() {
         background: "#fff",
         padding: "12px 16px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        boxSizing: "border-box",
       }}
     >
       <input
         placeholder="Nome do projeto..."
         value={projeto}
-        onChange={(e) => setProjeto(e.target.value)}
+        onChange={atualizarProjeto}
         style={{
           padding: "10px",
           width: "260px",
           maxWidth: "100%",
           borderRadius: "10px",
           border: "1px solid #ccc",
-          boxSizing: "border-box",
         }}
       />
 
@@ -79,4 +85,4 @@ export default function Navbar() {
       </ul>
     </nav>
   );
-}
+                         }
