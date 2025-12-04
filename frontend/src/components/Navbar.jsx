@@ -1,30 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar() {
-  const [projeto, setProjeto] = useState(localStorage.getItem("projeto") || "");
-  const navigate = useNavigate();
+export default function Navbar({ projectId }) {
+  const [nomeProjeto, setNomeProjeto] = useState(
+    localStorage.getItem("nomeProjeto") || ""
+  );
+
   const navRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem("projeto", projeto);
-    window.dispatchEvent(new Event("projetoAtualizado"));
-  }, [projeto]);
+    localStorage.setItem("nomeProjeto", nomeProjeto);
+  }, [nomeProjeto]);
 
-  // Ajuste de padding do conteúdo EXATO à altura da navbar
+  
   useEffect(() => {
-    function atualizarPadding() {
+    function updatePad() {
       if (navRef.current) {
-        document.body.style.paddingTop = navRef.current.offsetHeight + "px";
+        document.documentElement.style.setProperty(
+          "--navbar-height",
+          navRef.current.offsetHeight + "px"
+        );
       }
     }
-    atualizarPadding();
-    window.addEventListener("resize", atualizarPadding);
-
-    return () => {
-      document.body.style.paddingTop = "0px";
-      window.removeEventListener("resize", atualizarPadding);
-    };
+    updatePad();
+    window.addEventListener("resize", updatePad);
+    return () => window.removeEventListener("resize", updatePad);
   }, []);
 
   const items = [
@@ -41,43 +42,42 @@ export default function Navbar() {
       style={{
         width: "100%",
         background: "#fff",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 1000,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-        padding: "10px 12px",
+        position: "sticky",
+        top: "64px", 
+        zIndex: 998,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+        padding: "8px 12px",
         display: "flex",
-        flexWrap: "wrap",
         alignItems: "center",
-        justifyContent: "center",
-        gap: "10px",
+        justifyContent: "space-between",
+        gap: "12px",
+        overflowX: "auto",
       }}
     >
-      {/* INPUT DO PROJETO */}
+    
       <input
-        placeholder="Digite o nome do projeto..."
-        value={projeto}
-        onChange={(e) => setProjeto(e.target.value)}
+        placeholder="Nome do projeto..."
+        value={nomeProjeto}
+        onChange={(e) => setNomeProjeto(e.target.value)}
         style={{
-          padding: "8px",
-          width: "180px",
+          padding: "7px",
+          width: "200px",
           borderRadius: "8px",
           border: "1px solid #bbb",
           fontSize: "14px",
           flexShrink: 0,
         }}
       />
-
-      {/* MENU */}
+      
       <ul
         style={{
           display: "flex",
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
           gap: "14px",
           listStyle: "none",
           padding: 0,
           margin: 0,
+          whiteSpace: "nowrap",
         }}
       >
         {items.map((item) => (
@@ -85,18 +85,24 @@ export default function Navbar() {
             key={item.rota}
             style={{
               cursor: "pointer",
-              fontSize: "15px",
-              padding: "5px 6px",
+              padding: "6px 8px",
               borderRadius: "6px",
-              transition: "0.3s",
+              transition: "0.2s",
+              fontSize: "15px",
             }}
             onClick={() => {
-              if (!projeto.trim()) {
+              if (!nomeProjeto.trim()) {
                 alert("Digite o nome do projeto primeiro!");
                 return;
               }
               navigate(item.rota);
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "#e9e9e9")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
           >
             {item.nome}
           </li>
@@ -104,4 +110,4 @@ export default function Navbar() {
       </ul>
     </nav>
   );
-        }
+      }
