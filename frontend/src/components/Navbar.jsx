@@ -7,7 +7,15 @@ export default function Navbar() {
 
   useEffect(() => {
     localStorage.setItem("projeto", projeto);
+    window.dispatchEvent(new Event("projetoAtualizado"));
   }, [projeto]);
+
+  useEffect(() => {
+    document.body.style.paddingTop = "95px";
+    return () => {
+      document.body.style.paddingTop = "0px";
+    };
+  }, []);
 
   const items = [
     { nome: "Visão Geral", rota: "/visao" },
@@ -17,20 +25,12 @@ export default function Navbar() {
     { nome: "Relatório", rota: "/relatorio" },
   ];
 
-  function atualizarProjeto(e) {
-    setProjeto(e.target.value);
-    localStorage.setItem("projeto", e.target.value);
-    window.dispatchEvent(new Event("projetoAtualizado")); 
-  }
-
   return (
     <nav
       style={{
         width: "100%",
         display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "10px",
+        flexDirection: "column",
         alignItems: "center",
         background: "#fff",
         padding: "12px 16px",
@@ -45,13 +45,14 @@ export default function Navbar() {
       <input
         placeholder="Nome do projeto..."
         value={projeto}
-        onChange={atualizarProjeto}
+        onChange={(e) => setProjeto(e.target.value)}
         style={{
           padding: "10px",
           width: "260px",
           maxWidth: "100%",
           borderRadius: "10px",
           border: "1px solid #ccc",
+          marginBottom: "10px",
         }}
       />
 
@@ -60,11 +61,11 @@ export default function Navbar() {
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: "12px",
+          gap: "14px",
           listStyle: "none",
-          width: "100%",
-          padding: 0,
           margin: 0,
+          padding: 0,
+          width: "100%",
         }}
       >
         {items.map((item) => (
@@ -74,6 +75,9 @@ export default function Navbar() {
               cursor: "pointer",
               whiteSpace: "nowrap",
               fontSize: "15px",
+              padding: "6px 10px",
+              borderRadius: "8px",
+              transition: "0.2s",
             }}
             onClick={() => {
               if (!projeto.trim()) {
@@ -82,6 +86,8 @@ export default function Navbar() {
               }
               navigate(item.rota);
             }}
+            onMouseEnter={(e) => (e.target.style.background = "#f5f5f5")}
+            onMouseLeave={(e) => (e.target.style.background = "transparent")}
           >
             {item.nome}
           </li>
@@ -89,4 +95,4 @@ export default function Navbar() {
       </ul>
     </nav>
   );
-                         }
+     }
