@@ -1,182 +1,112 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { perguntarIA } from "../assets/api.js";
-import ReactMarkdown from "react-markdown";
-import "../assets/CSS/markdown.css";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function AIPage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const rota = location.pathname;
-
+export default function Navbar() {
   const [projeto, setProjeto] = useState(localStorage.getItem("projeto") || "");
-  const [resultado, setResultado] = useState("");
-  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+  const navigate = useNavigate();
+  const navRef = useRef(null);
 
   useEffect(() => {
-    function atualizarProjeto() {
-      setProjeto(localStorage.getItem("projeto") || "");
+    localStorage.setItem("projeto", projeto);
+    window.dispatchEvent(new Event("projetoAtualizado"));
+    if (projeto.trim()) setErro(""); // remove erro ao digitar
+  }, [projeto]);
+
+  useEffect(() => {
+    function atualizarPadding() {
+      if (navRef.current) {
+        document.body.style.paddingTop = navRef.current.offsetHeight + "px";
+      }
     }
-    window.addEventListener("projetoAtualizado", atualizarProjeto);
-    return () => window.removeEventListener("projetoAtualizado", atualizarProjeto);
+    atualizarPadding();
+    window.addEventListener("resize", atualizarPadding);
+
+    return () => {
+      document.body.style.paddingTop = "0px";
+      window.removeEventListener("resize", atualizarPadding);
+    };
   }, []);
 
-  if (!projeto.trim()) {
-    return (
-      <div style={styles.page}>
-        <h2>Projeto não definido</h2>
-        <button style={styles.home} onClick={() => navigate("/")}>🏠 Voltar</button>
-      </div>
-    );
-  }
-
-  const session_id =
-    localStorage.getItem("session_id") || crypto.randomUUID();
-  localStorage.setItem("session_id", session_id);
-
-  async function carregarResposta() {
-    setCarregando(true);
-
-    const nomeAtual = localStorage.getItem("projeto") || "";
-    setProjeto(nomeAtual);
-
-    const resposta = await perguntarIA(rota, nomeAtual, session_id);
-
-    
-    if (resposta?.resposta?.content) {
-      setResultado(resposta.resposta.content);
-    } else {
-      setResultado("Nenhum dado retornado pela IA.");
-    }
-
-    setCarregando(false);
-  }
-
-  useEffect(() => {
-    if (rota !== "/relatorio") carregarResposta();
-  }, [rota, projeto]);
-
-  async function baixarPDF() {
-    const req = await fetch(
-      "https://iaclear-1-backend.onrender.com/relatorio",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projeto, session_id }),
-      }
-    );
-
-    const blob = await req.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "relatorio.pdf";
-    a.click();
-  }
+  const items = [
+    { nome: "Visão Geral", rota: "/visao" },
+    { nome: "Materiais", rota: "/materiais" },
+    { nome: "Montagem", rota: "/montagem" },
+    { nome: "Procedimento", rota: "/procedimento" },
+    { nome: "Relatório", rota: "/relatorio" },
+  ];
 
   return (
-    <div style={styles.page}>
-      <div style={styles.topBar}>
-        <div style={styles.leftButtons}>
-          <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
-          <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
-            ❓ Tirar dúvidas
-          </button>
-        </div>
+    <nav
+      ref={navRef}
+      style={{
+        width: "100%",
+        background: "#fff",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 1000,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        padding: "10px 12px",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+      }}
+    >
 
-        <button style={styles.gerar} onClick={carregarResposta}>🔍 Pesquisar</button>
-      </div>
+      <input
+        placeholder="Digite o nome do projeto..."
+        value={projeto}
+        onChange={(e) => setProjeto(e.target.value)}
+        style={{
+          padding: "8px",
+          width: "200px",
+          borderRadius: "8px",
+          border: erro ? "1px solid red" : "1px solid #bbb",
+          fontSize: "14px",
+        }}
+      />
 
-      <h1>{rota.replace("/", "").toUpperCase()}</h1>
-      <h3>Projeto: {projeto}</h3>
-
-      {rota === "/relatorio" ? (
-        <button style={styles.btn} onClick={baixarPDF}>📄 Gerar PDF</button>
-      ) : carregando ? (
-        <p>Carregando...</p>
-      ) : (
-        <div style={styles.resultado}>
-          <ReactMarkdown className="markdown-body">{resultado}</ReactMarkdown>
-        </div>
+      {erro && (
+        <small style={{ color: "red", fontSize: 12, width: "100%", textAlign: "center" }}>
+          {erro}
+        </small>
       )}
-    </div>
+
+      <ul
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "14px",
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+        }}
+      >
+        {items.map((item) => (
+          <li
+            key={item.rota}
+            style={{
+              cursor: "pointer",
+              fontSize: "15px",
+              padding: "5px 6px",
+              borderRadius: "6px",
+              transition: "0.3s",
+            }}
+            onClick={() => {
+              if (!projeto.trim()) {
+                setErro("Digite um projeto antes de continuar.");
+                return;
+              }
+              navigate(item.rota);
+            }}
+          >
+            {item.nome}
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
-}
-
-const styles = {
-  page: {
-    paddingTop: "120px", 
-    paddingLeft: "20px",
-    paddingRight: "20px",
-    maxWidth: "900px",
-    margin: "0 auto",
-    fontFamily: "'Segoe UI', sans-serif",
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
-  },
-
-  topBar: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "20px",
-    flexWrap: "wrap",
-    gap: "10px",
-  },
-
-  leftButtons: {
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-  },
-
-  home: {
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#2d2d2d",
-    color: "#fff",
-    cursor: "pointer",
-  },
-
-  comousar: {
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#444",
-    color: "#fff",
-    cursor: "pointer",
-  },
-
-  gerar: {
-    padding: "12px 24px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#0078d4",
-    color: "#fff",
-    cursor: "pointer",
-  },
-
-  btn: {
-    width: "100%",
-    padding: "14px",
-    background: "#0078d4",
-    color: "#fff",
-    border: "none",
-    borderRadius: "10px",
-    marginTop: "16px",
-    cursor: "pointer",
-  },
-
-  resultado: {
-    marginTop: "25px",
-    padding: "20px",
-    borderRadius: "14px",
-    background: "rgba(255,255,255,0.7)",
-    border: "1px solid rgba(0,0,0,0.1)",
-    overflowY: "auto",
-    flexGrow: 1,       
-    minHeight: "0px",   
-  },
-};
+        }
