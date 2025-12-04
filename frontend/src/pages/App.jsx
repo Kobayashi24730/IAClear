@@ -51,11 +51,10 @@ export default function App() {
           overflowX: "hidden",
         }}
       >
-        
         <header
           style={{
             width: "100%",
-            height: "64px",
+            height: "68px",
             background: theme.header,
             color: theme.text,
             display: "flex",
@@ -66,7 +65,7 @@ export default function App() {
             position: "fixed",
             top: 0,
             left: 0,
-            zIndex: 999,
+            zIndex: 9999,
             borderBottom: "1px solid #ccc",
           }}
         >
@@ -74,7 +73,7 @@ export default function App() {
 
           <div style={{ display: "flex", alignItems: "center" }}>
             <small style={{ marginRight: 12 }}>
-              Projeto: <strong style={{ marginLeft: 6 }}>{projectId}</strong>
+              Projeto: <strong>{projectId}</strong>
             </small>
 
             <button
@@ -88,12 +87,8 @@ export default function App() {
                 cursor: "pointer",
                 transition: "0.2s",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = theme.btnHover)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = theme.btn)
-              }
+              onMouseEnter={(e) => (e.currentTarget.style.background = theme.btnHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = theme.btn)}
             >
               Novo Projeto
             </button>
@@ -102,11 +97,11 @@ export default function App() {
 
         <main
           style={{
-            paddingTop: "64px",
+            paddingTop: "88px", // ↑ aumenta porque o header + navbar somam altura
             background: theme.mainBg,
             minHeight: "100vh",
             width: "100%",
-            overflowX: "hidden",
+            overflowY: "auto", // <— rolagem final corrigida
             margin: 0,
             boxSizing: "border-box",
             opacity: animate ? 1 : 0,
@@ -114,22 +109,23 @@ export default function App() {
             transition: "all 0.6s ease",
           }}
         >
-          
           <Navbar projectId={projectId} />
 
           <div style={{ padding: "0 12px", boxSizing: "border-box" }}>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/como-usar" element={<ComoUsar />} />
-              <Route path="/visao" element={<AIPage />} />
-              <Route path="/materiais" element={<AIPage />} />
-              <Route path="/montagem" element={<AIPage />} />
-              <Route path="/procedimento" element={<AIPage />} />
-              <Route path="/relatorio" element={<AIPage />} />
+              <Route path="/" element={<Home projectId={projectId} />} />
+              <Route path="/como-usar" element={<ComoUsar projectId={projectId} />} />
+
+              {/* Todas agora recebem projectId */}
+              <Route path="/visao" element={<AIPage projectId={projectId} />} />
+              <Route path="/materiais" element={<AIPage projectId={projectId} />} />
+              <Route path="/montagem" element={<AIPage projectId={projectId} />} />
+              <Route path="/procedimento" element={<AIPage projectId={projectId} />} />
+              <Route path="/relatorio" element={<AIPage projectId={projectId} />} />
             </Routes>
           </div>
         </main>
       </div>
     </BrowserRouter>
   );
-          }
+  }
