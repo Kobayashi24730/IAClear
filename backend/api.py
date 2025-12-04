@@ -18,6 +18,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 
 load_dotenv()
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY não definido no .env")
@@ -33,89 +34,78 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# memória de sessão
 respostas_sessao: Dict[str, Dict[str, Any]] = {}
+
+# ---------------- MODELS ----------------
 
 class Pergunta(BaseModel):
     projeto: str
     session_id: str
 
+# ---------------- VALIDAÇÃO ----------------
+
 TOPICOS_PERMITIDOS = [
-    "leis de newton", "força", "movimento", "massa", "aceleração",
-    "inércia", "gravitacional", "peso", "física", "dinâmica",
-    "projetos", "resumos", "mapas mentais", "equações", "experimentos",
-    "segunda lei", "terceira lei", "primeira lei", "lei da ação e reação",
-    "queda livre", "atrito"
+    "leis de newton", "força", "movimento", "massa", "aceleração", "inércia",
+    "gravitacional", "peso", "física", "dinâmica", "projetos", "resumos",
+    "mapas mentais", "equações", "experimentos", "segunda lei", "terceira lei",
+    "primeira lei", "lei da ação e reação", "queda livre", "atrito"
 ]
 
 def validar_tema(prompt: str) -> bool:
     prompt_lower = prompt.lower()
     return any(topico in prompt_lower for topico in TOPICOS_PERMITIDOS)
 
+# ---------------- OPENAI ----------------
+
 async def gerar_resposta_raw(prompt: str, max_tokens: int = 1200):
-    """
-    Retorna a string bruta gerada pelo modelo.
-    """
     try:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role":"user","content":prompt}],
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=max_tokens
         )
         return completion.choices[0].message.content
-    except Exception as e:
 
+    except Exception as e:
         print("ERRO gerar_resposta_raw:", e)
         traceback.print_exc()
         return f"Erro ao gerar resposta: {e}"
 
 async def gerar_resposta_com_books(prompt: str, max_tokens: int = 1500):
-    """
-    Peça ao modelo que retorne JSON com campos:
-    {
-      "content": "<texto principal - sem marcações>",
-      "books": ["Livro 1 - Autor", "Livro 2 - Autor", ...],
-      "notes": "<observações opcionais>"
-    }
-    Se não for possível parsear JSON, devolve {"content": raw_text, "books": []}
-    """
     system_instruction = (
-        "Você é um assistente que prioriza informações provenientes de livros e fontes acadêmicas. "
-        "Ao responder, gere um JSON com três campos: content, books e notes. "
-        "content: o texto completo, explicado, sem markdown. "
-        "books: uma lista (array) dos livros, nomes e autores ou fontes principais usadas como referência (mínimo quando possível). "
-        "notes: observações curtas (opcional). "
-        "Retorne apenas JSON válido, sem texto extra."
+        "Você deve responder APENAS em JSON válido com os campos "
+        "{content, books, notes}. "
+        "books deve conter autores e obras acadêmicas se possível."
     )
 
-    messages = [
-        {"role":"system","content":system_instruction},
-        {"role":"user","content":prompt}
-    ]
     try:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=messages,
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=max_tokens
         )
-        raw = completion.choices[0].message.content
+
+        raw = completion.choices[0].message.content.strip()
 
         try:
             parsed = json.loads(raw)
+            return {
+                "content": parsed.get("content", "").strip(),
+                "books": parsed.get("books", []),
+                "notes": parsed.get("notes", "")
+            }
+        except:
+            return {"content": raw, "books": [], "notes": "JSON inválido retornado"}
 
-            content = parsed.get("content", "").strip()
-            books = parsed.get("books", [])
-            notes = parsed.get("notes", "")
-            if not isinstance(books, list):
-                books = []
-            return {"content": content, "books": books, "notes": notes}
-        except Exception:
-
-            return {"content": raw, "books": [], "notes": "Resposta não em JSON; conteúdo bruto retornado."}
     except Exception as e:
         print("ERRO gerar_resposta_com_books:", e)
-        traceback.print_exc()
         return {"content": f"Erro ao gerar resposta: {e}", "books": [], "notes": ""}
+
+# ---------------- ARMAZENAMENTO ----------------
 
 def salvar_resposta(session_id: str, campo: str, content: str, books=None, notes=""):
     if books is None:
@@ -124,113 +114,61 @@ def salvar_resposta(session_id: str, campo: str, content: str, books=None, notes
         respostas_sessao[session_id] = {"projeto": None}
     respostas_sessao[session_id][campo] = {"text": content, "books": books, "notes": notes}
 
-async def checar_consistencia_via_model(session_data: Dict[str, Any]):
-    """
-    Envia as seções ao modelo pedindo um JSON:
-    { "consistent": true/false, "mismatch": ["materiais","montagem"], "explanation": "..."}
-    """
-
-    partes = []
-    for chave in ["visao","materiais","montagem","procedimento"]:
-        if chave in session_data:
-            partes.append(f"--- {chave.upper()} ---\n{session_data[chave]['text']}\n")
-    prompt = (
-        "Você receberá diferentes respostas geradas para mesmo projeto em seções separadas. "
-        "Verifique se todas as seções tratam do MESMO tema/projeto e se são coerentes entre si.\n\n"
-        "Responda apenas com um JSON válido com os campos:\n"
-        '  { "consistent": true/false, "mismatch": ["nome_da_secao",...], "explanation": "texto curto" }\n\n'
-        "Se estiver tudo consistente, consistent:true e mismatch:[]\n\n"
-        "Se quiser, use as informações abaixo para avaliar:\n\n" + "\n".join(partes)
-    )
-
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role":"user","content":prompt}],
-            max_tokens=400
-        )
-        raw = completion.choices[0].message.content
-        try:
-            result = json.loads(raw)
-
-            consistent = bool(result.get("consistent", False))
-            mismatch = result.get("mismatch", [])
-            explanation = result.get("explanation", "")
-            return {"consistent": consistent, "mismatch": mismatch, "explanation": explanation}
-        except Exception:
-
-            texts = [session_data[k]["text"].lower() for k in session_data if k in ["visao","materiais","montagem","procedimento"]]
-
-            counts = []
-            for t in texts:
-                cnt = sum(1 for w in TOPICOS_PERMITIDOS if w in t)
-                counts.append(cnt)
-
-            if len(counts) < 2:
-                return {"consistent": True, "mismatch": [], "explanation": "Poucas seções para comparar."}
-            import statistics
-            if statistics.pstdev(counts) > 1.5:
-                return {"consistent": False, "mismatch": [], "explanation": "Heurística detectou baixa concordância entre seções."}
-            return {"consistent": True, "mismatch": [], "explanation": "Heurística detectou concordância."}
-    except Exception as e:
-        print("ERRO checar_consistencia_via_model:", e)
-        traceback.print_exc()
-        return {"consistent": True, "mismatch": [], "explanation": "Erro ao checar consistência; assumindo consistente."}
+# ---------------- ROTAS IA ----------------
 
 @app.post("/visao")
 async def visao(data: Pergunta):
     if not validar_tema(data.projeto):
-        return JSONResponse({"resposta": "❌ Tema não permitido. Só assuntos relacionados às Leis de Newton."}, status_code=400)
-    prompt = (
-        f"Escreva uma visão geral clara, bem estruturada e agradável sobre o projeto '{data.projeto}'. "
-        "Priorize informação baseada em livros e fontes acadêmicas; ao final, retorne um JSON com campos: content (texto), books (lista de livros usados, autor e ano quando possível), notes (opcional). Retorne apenas JSON."
-    )
-    generated = await gerar_resposta_com_books(prompt)
-    salvar_resposta(data.session_id, "visao", generated["content"], generated["books"], generated.get("notes",""))
+        return JSONResponse({"erro": "Tema negado. Permitido somente assuntos das Leis de Newton."}, 400)
 
-    if data.session_id not in respostas_sessao:
-        respostas_sessao[data.session_id] = {}
+    prompt = f"Explique de forma acadêmica a visão geral do projeto '{data.projeto}'."
+    generated = await gerar_resposta_com_books(prompt)
+
+    salvar_resposta(data.session_id, "visao", generated["content"], generated["books"])
     respostas_sessao[data.session_id]["projeto"] = data.projeto
+
     return {"resposta": generated}
+
 
 @app.post("/materiais")
 async def materiais(data: Pergunta):
     if not validar_tema(data.projeto):
-        return JSONResponse({"resposta": "❌ Tema não permitido."}, status_code=400)
-    prompt = (
-        f"Liste, com quantidades e descrições curtas, os materiais necessários para o projeto '{data.projeto}'. "
-        "Priorize materiais acessíveis. Ao final, retorne JSON: {\"content\": \"...\", \"books\": [...], \"notes\":\"...\"}. Sem markdown."
-    )
+        return JSONResponse({"erro": "Tema negado. Permitido somente assuntos das Leis de Newton."}, 400)
+
+    prompt = f"Liste materiais para o projeto '{data.projeto}' com quantidades."
     generated = await gerar_resposta_com_books(prompt)
-    salvar_resposta(data.session_id, "materiais", generated["content"], generated["books"], generated.get("notes",""))
+
+    salvar_resposta(data.session_id, "materiais", generated["content"], generated["books"])
     respostas_sessao[data.session_id]["projeto"] = data.projeto
+
     return {"resposta": generated}
 
 @app.post("/montagem")
 async def montagem(data: Pergunta):
     if not validar_tema(data.projeto):
-        return JSONResponse({"resposta": "❌ Tema não permitido."}, status_code=400)
-    prompt = (
-        f"Explique passo a passo a montagem do projeto '{data.projeto}', descrevendo diagramas ou componentes importantes. "
-        "Retorne JSON: {\"content\":\"...\",\"books\":[...],\"notes\":\"...\"}."
-    )
+        return JSONResponse({"erro": "Tema negado. Permitido somente assuntos das Leis de Newton."}, 400)
+
+    prompt = f"Explique o passo a passo de montagem do projeto '{data.projeto}'."
     generated = await gerar_resposta_com_books(prompt)
-    salvar_resposta(data.session_id, "montagem", generated["content"], generated["books"], generated.get("notes",""))
+
+    salvar_resposta(data.session_id, "montagem", generated["content"], generated["books"])
     respostas_sessao[data.session_id]["projeto"] = data.projeto
+
     return {"resposta": generated}
 
 @app.post("/procedimento")
 async def procedimento(data: Pergunta):
     if not validar_tema(data.projeto):
-        return JSONResponse({"resposta": "❌ Tema não permitido."}, status_code=400)
-    prompt = (
-        f"Descreva o procedimento do projeto '{data.projeto}' de forma didática e segura. "
-        "Retorne JSON: {\"content\":\"...\",\"books\":[...],\"notes\":\"...\"}."
-    )
+        return JSONResponse({"erro": "Tema negado. Permitido somente assuntos das Leis de Newton."}, 400)
+
+    prompt = f"Explique o procedimento experimental do projeto '{data.projeto}'."
     generated = await gerar_resposta_com_books(prompt)
-    salvar_resposta(data.session_id, "procedimento", generated["content"], generated["books"], generated.get("notes",""))
+
+    salvar_resposta(data.session_id, "procedimento", generated["content"], generated["books"])
     respostas_sessao[data.session_id]["projeto"] = data.projeto
+
     return {"resposta": generated}
+    
 
 @app.post("/relatorio")
 async def gerar_pdf(data: Pergunta):
