@@ -14,22 +14,18 @@ export default function AIPage() {
   const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
-    function atualizar() {
+    function atualizarProjeto() {
       setProjeto(localStorage.getItem("projeto") || "");
     }
-
-    window.addEventListener("projetoAtualizado", atualizar);
-
-    return () => window.removeEventListener("projetoAtualizado", atualizar);
+    window.addEventListener("projetoAtualizado", atualizarProjeto);
+    return () => window.removeEventListener("projetoAtualizado", atualizarProjeto);
   }, []);
 
   if (!projeto.trim()) {
     return (
       <div style={styles.page}>
         <h2>Projeto não definido</h2>
-        <button style={styles.home} onClick={() => navigate("/")}>
-          🏠 Voltar
-        </button>
+        <button style={styles.home} onClick={() => navigate("/")}>🏠 Voltar</button>
       </div>
     );
   }
@@ -41,21 +37,23 @@ export default function AIPage() {
   async function carregarResposta() {
     setCarregando(true);
 
-    
     const nomeAtual = localStorage.getItem("projeto") || "";
     setProjeto(nomeAtual);
 
     const resposta = await perguntarIA(rota, nomeAtual, session_id);
 
-    if (resposta?.resposta) setResultado(resposta.resposta);
+    
+    if (resposta?.resposta?.content) {
+      setResultado(resposta.resposta.content);
+    } else {
+      setResultado("Nenhum dado retornado pela IA.");
+    }
 
     setCarregando(false);
   }
 
   useEffect(() => {
-    if (rota !== "/relatorio") {
-      carregarResposta();
-    }
+    if (rota !== "/relatorio") carregarResposta();
   }, [rota, projeto]);
 
   async function baixarPDF() {
@@ -80,26 +78,20 @@ export default function AIPage() {
     <div style={styles.page}>
       <div style={styles.topBar}>
         <div style={styles.leftButtons}>
-          <button style={styles.home} onClick={() => navigate("/")}>
-            🏠 Home
-          </button>
+          <button style={styles.home} onClick={() => navigate("/")}>🏠 Home</button>
           <button style={styles.comousar} onClick={() => navigate("/ComoUsar")}>
             ❓ Tirar dúvidas
           </button>
         </div>
 
-        <button style={styles.gerar} onClick={carregarResposta}>
-          🔍 Pesquisar
-        </button>
+        <button style={styles.gerar} onClick={carregarResposta}>🔍 Pesquisar</button>
       </div>
 
       <h1>{rota.replace("/", "").toUpperCase()}</h1>
       <h3>Projeto: {projeto}</h3>
 
       {rota === "/relatorio" ? (
-        <button style={styles.btn} onClick={baixarPDF}>
-          📄 Gerar PDF
-        </button>
+        <button style={styles.btn} onClick={baixarPDF}>📄 Gerar PDF</button>
       ) : carregando ? (
         <p>Carregando...</p>
       ) : (
@@ -113,20 +105,32 @@ export default function AIPage() {
 
 const styles = {
   page: {
-    padding: "20px",
+    paddingTop: "120px", 
+    paddingLeft: "20px",
+    paddingRight: "20px",
     maxWidth: "900px",
     margin: "0 auto",
     fontFamily: "'Segoe UI', sans-serif",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    boxSizing: "border-box",
   },
+
   topBar: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: "10px",
   },
+
   leftButtons: {
     display: "flex",
     gap: "10px",
+    flexWrap: "wrap",
   },
+
   home: {
     padding: "10px 18px",
     borderRadius: "10px",
@@ -134,8 +138,8 @@ const styles = {
     background: "#2d2d2d",
     color: "#fff",
     cursor: "pointer",
-    fontSize: "16px",
   },
+
   comousar: {
     padding: "10px 18px",
     borderRadius: "10px",
@@ -143,8 +147,8 @@ const styles = {
     background: "#444",
     color: "#fff",
     cursor: "pointer",
-    fontSize: "16px",
   },
+
   gerar: {
     padding: "12px 24px",
     borderRadius: "10px",
@@ -152,8 +156,8 @@ const styles = {
     background: "#0078d4",
     color: "#fff",
     cursor: "pointer",
-    fontSize: "17px",
   },
+
   btn: {
     width: "100%",
     padding: "14px",
@@ -163,15 +167,16 @@ const styles = {
     borderRadius: "10px",
     marginTop: "16px",
     cursor: "pointer",
-    fontSize: "17px",
   },
+
   resultado: {
     marginTop: "25px",
     padding: "20px",
     borderRadius: "14px",
-    background: "rgba(255, 255, 255, 0.7)",
+    background: "rgba(255,255,255,0.7)",
     border: "1px solid rgba(0,0,0,0.1)",
-    maxHeight: "65vh",
     overflowY: "auto",
+    flexGrow: 1,       
+    minHeight: "0px",   
   },
 };
